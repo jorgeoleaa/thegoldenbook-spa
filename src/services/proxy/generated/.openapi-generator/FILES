@@ -1,0 +1,14 @@
+.openapi-generator-ignore
+apis/DefaultApi.ts
+apis/index.ts
+index.ts
+models/Autor.ts
+models/ClienteDTO.ts
+models/DireccionDTO.ts
+models/LibroDTO.ts
+models/LineaPedido.ts
+models/Pedido.ts
+models/Tematica.ts
+models/ValoracionDTO.ts
+models/index.ts
+runtime.ts
