@@ -94,26 +94,26 @@ const LibroSearch: FC = () => {
                     justifyContent="center"
                     alignItems="center"
                 >
-                    {/*
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DatePicker']}>
                             <DatePicker
-                            value={dayjs(fechaDesde)} 
-                            onChange={(nuevaFechaDesde) => setFechaDesde(nuevaFechaDesde?.toDate())} 
-                            label="Fecha desde"
+                                value={fechaDesde ? dayjs(fechaDesde) : null}
+                                onChange={(nuevaFechaDesde) => setFechaDesde(nuevaFechaDesde?.toDate())}
+                                label="Fecha desde"
+                                format="YYYY-MM-DD"
                             />
                         </DemoContainer>
                     </LocalizationProvider>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DatePicker']}>
-                        <DatePicker
-                            value={dayjs(fechaHasta)} 
-                            onChange={(nuevaFechaHasta) => setFechaHasta(nuevaFechaHasta?.toDate())} 
-                            label="Fecha desde"
+                            <DatePicker
+                                value={fechaHasta ? dayjs(fechaHasta) : null}
+                                onChange={(nuevaFechaHasta) => setFechaHasta(nuevaFechaHasta?.toDate())}
+                                label="Fecha hasta"
+                                format="YYYY-MM-DD"
                             />
                         </DemoContainer>
                     </LocalizationProvider>
-                    */}
                 </Box>
             </Grid2>
             <Grid2 size={9}>
