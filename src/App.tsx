@@ -1,12 +1,16 @@
 import React from "react";
-import Header from "./components/Header";
-import LibroSearch from "./components/LibroSearch";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { routeTree } from "./routeTree.gen";
+import { StrictMode } from "react";
+
+const router = createRouter({ routeTree });
 
 const App: React.FC = () => {
   return (
     <>
-      <Header/>
-      <LibroSearch />
+      <StrictMode>
+        <RouterProvider router={router}/>
+      </StrictMode>
     </>
   )
 }

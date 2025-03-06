@@ -1,8 +1,12 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './Autor';
+export * from './ClasificacionEdad';
 export * from './ClienteDTO';
 export * from './DireccionDTO';
+export * from './Formato';
+export * from './GeneroLiterario';
+export * from './Idioma';
 export * from './LibroDTO';
 export * from './LineaPedido';
 export * from './Pedido';

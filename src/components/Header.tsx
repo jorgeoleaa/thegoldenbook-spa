@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from '@tanstack/react-router'
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -13,7 +14,6 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 
-const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function Header() {
@@ -35,16 +35,20 @@ function Header() {
     setAnchorElUser(null);
   };
 
-  return ( 
-    <AppBar position="static">
+  return (
+    <AppBar position="static" sx={{ backgroundColor: 'black' }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+          <img
+            src="../src/assets/imgs/logo-removebg-preview.png"
+            alt="Logo"
+            style={{ height: 40, marginRight: 8, display: 'flex' }}
+          />
           <Typography
             variant="h6"
             noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
+            component={Link}
+            to="/"
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
@@ -55,7 +59,7 @@ function Header() {
               textDecoration: 'none',
             }}
           >
-            LOGO
+            The Golden Book
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -85,19 +89,21 @@ function Header() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
-                </MenuItem>
-              ))}
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Typography textAlign="center">
+                  <Link to="/aboutus" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    Sobre Nosotros
+                  </Link>
+                </Typography>
+              </MenuItem>
             </Menu>
           </Box>
           <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
           <Typography
             variant="h5"
             noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
+            component={Link}
+            to="/"
             sx={{
               mr: 2,
               display: { xs: 'flex', md: 'none' },
@@ -112,15 +118,20 @@ function Header() {
             LOGO
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
-            ))}
+            <Button
+              component={Link}
+              to="/libroSearch"
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              Búsqueda
+            </Button>
+            <Button
+              component={Link}
+              to="/aboutus"
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              Sobre Nosotros
+            </Button>
           </Box>
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
@@ -139,8 +150,8 @@ function Header() {
               keepMounted
               transformOrigin={{
                 vertical: 'top',
-                horizontal: 'right',
-              }}
+                horizontal: 'right' }
+              }
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
@@ -156,4 +167,5 @@ function Header() {
     </AppBar>
   );
 }
+
 export default Header;

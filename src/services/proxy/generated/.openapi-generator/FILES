@@ -3,8 +3,12 @@ apis/DefaultApi.ts
 apis/index.ts
 index.ts
 models/Autor.ts
+models/ClasificacionEdad.ts
 models/ClienteDTO.ts
 models/DireccionDTO.ts
+models/Formato.ts
+models/GeneroLiterario.ts
+models/Idioma.ts
 models/LibroDTO.ts
 models/LineaPedido.ts
 models/Pedido.ts

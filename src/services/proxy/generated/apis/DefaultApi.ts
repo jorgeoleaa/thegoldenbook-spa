@@ -15,14 +15,26 @@
 
 import * as runtime from '../runtime';
 import type {
+  ClasificacionEdad,
   ClienteDTO,
+  Formato,
+  GeneroLiterario,
+  Idioma,
   LibroDTO,
   Pedido,
   ValoracionDTO,
 } from '../models/index';
 import {
+    ClasificacionEdadFromJSON,
+    ClasificacionEdadToJSON,
     ClienteDTOFromJSON,
     ClienteDTOToJSON,
+    FormatoFromJSON,
+    FormatoToJSON,
+    GeneroLiterarioFromJSON,
+    GeneroLiterarioToJSON,
+    IdiomaFromJSON,
+    IdiomaToJSON,
     LibroDTOFromJSON,
     LibroDTOToJSON,
     PedidoFromJSON,
@@ -51,6 +63,22 @@ export interface DeletePedidoRequest {
 export interface DeleteValoracionRequest {
     libroId?: number;
     clienteId?: number;
+}
+
+export interface FindEdadesByLocaleRequest {
+    locale?: string;
+}
+
+export interface FindFormatosByLocaleRequest {
+    locale?: string;
+}
+
+export interface FindGenerosLiterariosByLocaleRequest {
+    locale?: string;
+}
+
+export interface FindIdiomasByLocaleRequest {
+    locale?: string;
 }
 
 export interface FindLibrosByCriteriaRequest {
@@ -254,6 +282,134 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async deleteValoracion(requestParameters: DeleteValoracionRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.deleteValoracionRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Recupera una lista de clasificaciones por edad en el idioma del locale proporcionado
+     * Búsqueda de clasficaciones por edad de los libros
+     */
+    async findEdadesByLocaleRaw(requestParameters: FindEdadesByLocaleRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<ClasificacionEdad>>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['locale'] != null) {
+            queryParameters['locale'] = requestParameters['locale'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/edad`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(ClasificacionEdadFromJSON));
+    }
+
+    /**
+     * Recupera una lista de clasificaciones por edad en el idioma del locale proporcionado
+     * Búsqueda de clasficaciones por edad de los libros
+     */
+    async findEdadesByLocale(requestParameters: FindEdadesByLocaleRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<ClasificacionEdad>> {
+        const response = await this.findEdadesByLocaleRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Recupera una lista de formatos en el idioma del locale proporcionado
+     * Búsqueda de formatos
+     */
+    async findFormatosByLocaleRaw(requestParameters: FindFormatosByLocaleRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Formato>>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['locale'] != null) {
+            queryParameters['locale'] = requestParameters['locale'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/formato`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(FormatoFromJSON));
+    }
+
+    /**
+     * Recupera una lista de formatos en el idioma del locale proporcionado
+     * Búsqueda de formatos
+     */
+    async findFormatosByLocale(requestParameters: FindFormatosByLocaleRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Formato>> {
+        const response = await this.findFormatosByLocaleRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Recupera una lista de géneros literarios en el idioma del locale proporcionado
+     * Búsqueda de géneros literarios
+     */
+    async findGenerosLiterariosByLocaleRaw(requestParameters: FindGenerosLiterariosByLocaleRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<GeneroLiterario>>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['locale'] != null) {
+            queryParameters['locale'] = requestParameters['locale'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/genero`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GeneroLiterarioFromJSON));
+    }
+
+    /**
+     * Recupera una lista de géneros literarios en el idioma del locale proporcionado
+     * Búsqueda de géneros literarios
+     */
+    async findGenerosLiterariosByLocale(requestParameters: FindGenerosLiterariosByLocaleRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<GeneroLiterario>> {
+        const response = await this.findGenerosLiterariosByLocaleRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Recupera una lista de idiomas en el idioma del locale proporcionado
+     * Búsqueda de idiomas
+     */
+    async findIdiomasByLocaleRaw(requestParameters: FindIdiomasByLocaleRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Idioma>>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['locale'] != null) {
+            queryParameters['locale'] = requestParameters['locale'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/idioma`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(IdiomaFromJSON));
+    }
+
+    /**
+     * Recupera una lista de idiomas en el idioma del locale proporcionado
+     * Búsqueda de idiomas
+     */
+    async findIdiomasByLocale(requestParameters: FindIdiomasByLocaleRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Idioma>> {
+        const response = await this.findIdiomasByLocaleRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
