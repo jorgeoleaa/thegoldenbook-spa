@@ -16,6 +16,7 @@
 import * as runtime from '../runtime';
 import type {
   ClasificacionEdad,
+  ClienteCredentials,
   ClienteDTO,
   Formato,
   GeneroLiterario,
@@ -27,6 +28,8 @@ import type {
 import {
     ClasificacionEdadFromJSON,
     ClasificacionEdadToJSON,
+    ClienteCredentialsFromJSON,
+    ClienteCredentialsToJSON,
     ClienteDTOFromJSON,
     ClienteDTOToJSON,
     FormatoFromJSON,
@@ -42,6 +45,10 @@ import {
     ValoracionDTOFromJSON,
     ValoracionDTOToJSON,
 } from '../models/index';
+
+export interface AutenticarClienteRequest {
+    clienteCredentials?: ClienteCredentials;
+}
 
 export interface CreatePedidoRequest {
     pedido?: Pedido;
@@ -118,6 +125,37 @@ export interface RegisterClienteRequest {
  * 
  */
 export class DefaultApi extends runtime.BaseAPI {
+
+    /**
+     * Autenticación de un cliente introduciendo su corre electrónico y su contraseña
+     * Autenticación de un cliente
+     */
+    async autenticarClienteRaw(requestParameters: AutenticarClienteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ClienteDTO>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/api/cliente/autenticar`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ClienteCredentialsToJSON(requestParameters['clienteCredentials']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ClienteDTOFromJSON(jsonValue));
+    }
+
+    /**
+     * Autenticación de un cliente introduciendo su corre electrónico y su contraseña
+     * Autenticación de un cliente
+     */
+    async autenticarCliente(requestParameters: AutenticarClienteRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ClienteDTO> {
+        const response = await this.autenticarClienteRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Crea un pedido introduciendo todos los datos del mismo

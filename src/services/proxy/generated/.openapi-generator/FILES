@@ -4,6 +4,7 @@ apis/index.ts
 index.ts
 models/Autor.ts
 models/ClasificacionEdad.ts
+models/ClienteCredentials.ts
 models/ClienteDTO.ts
 models/DireccionDTO.ts
 models/Formato.ts

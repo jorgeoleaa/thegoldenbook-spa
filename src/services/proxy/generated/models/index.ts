@@ -2,6 +2,7 @@
 /* eslint-disable */
 export * from './Autor';
 export * from './ClasificacionEdad';
+export * from './ClienteCredentials';
 export * from './ClienteDTO';
 export * from './DireccionDTO';
 export * from './Formato';
