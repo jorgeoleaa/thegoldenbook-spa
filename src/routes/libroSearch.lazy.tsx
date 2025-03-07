@@ -218,7 +218,7 @@ function LibroSearch () {
                     <Grid container spacing={2}>
                         {librosPaginados.map((libro) => (
                             <Grid item xs={12} sm={6} md={3} key={libro.id}>
-                                <LibroCard title={libro.nombre ?? "Sin título"} price={libro.precio ?? 0} />
+                                <LibroCard libro={libro}/>
                             </Grid>
                         ))}
                     </Grid>

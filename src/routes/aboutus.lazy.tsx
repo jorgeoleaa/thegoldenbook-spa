@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
-import { Container, Typography, Box, Paper } from '@mui/material';
+import { Container, Typography, Paper } from '@mui/material';
 
 export const Route = createLazyFileRoute('/aboutus')({
   component: AboutUs,

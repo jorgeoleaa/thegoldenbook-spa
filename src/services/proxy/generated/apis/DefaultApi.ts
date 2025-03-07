@@ -121,6 +121,10 @@ export interface RegisterClienteRequest {
     clienteDTO?: ClienteDTO;
 }
 
+export interface UpdatePedidoRequest {
+    pedido?: Pedido;
+}
+
 /**
  * 
  */
@@ -664,6 +668,36 @@ export class DefaultApi extends runtime.BaseAPI {
     async registerCliente(requestParameters: RegisterClienteRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ClienteDTO> {
         const response = await this.registerClienteRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+
+    /**
+     * Actualiza todos los datos pertenecientes al pedido
+     * Actualización de un pedido
+     */
+    async updatePedidoRaw(requestParameters: UpdatePedidoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/api/pedido/update`,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: PedidoToJSON(requestParameters['pedido']),
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Actualiza todos los datos pertenecientes al pedido
+     * Actualización de un pedido
+     */
+    async updatePedido(requestParameters: UpdatePedidoRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.updatePedidoRaw(requestParameters, initOverrides);
     }
 
 }

@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { Link } from '@tanstack/react-router'
+import { useContext } from 'react';
+import { ClienteContext } from '../states/contexts';
+import { Link } from '@tanstack/react-router';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -13,12 +15,31 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import { styled } from '@mui/material/styles';
+import Badge, { badgeClasses } from '@mui/material/Badge';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCartOutlined';
 
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const settings = ['Mi perfil', 'Mis pedidos', 'Salir'];
 
 function Header() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+
+  const CartBadge = styled(Badge)`
+  & .${badgeClasses.badge} {
+    top: -12px;
+    right: -6px;
+  }
+`;
+
+  const clienteContext = useContext(ClienteContext);
+
+  if (!clienteContext) {
+    throw new Error("ClienteContext debe usarse dentro de un ClienteProvider");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [clienteAutenticado, setClienteAutenticado] = clienteContext;
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -134,33 +155,59 @@ function Header() {
             </Button>
           </Box>
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: '45px' }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right' }
-              }
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
+            {clienteAutenticado ? (
+              <>
+                <IconButton
+                component={Link}
+                to="/cart" 
+                sx={{ mr: 2 }}
+                >
+                <ShoppingCartIcon fontSize="medium" sx={{ color: 'white' }} />
+                  <CartBadge badgeContent={2} color="primary" overlap="circular" />
+                </IconButton>
+                <Tooltip title="Open settings">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: '45px' }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  {settings.map((setting) => (
+                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                      {setting === 'Mi perfil' ? (
+                        <Link to="/profile" style={{ textDecoration: 'none', color: 'inherit' }}>
+                          <Typography textAlign="center">{setting}</Typography>
+                        </Link>
+                      ) : (
+                        <Typography textAlign="center">{setting}</Typography>
+                      )}
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </>
+            ) : (
+              <Button
+                component={Link}
+                to="/login"
+                variant="contained"
+              >
+                Iniciar Sesion
+              </Button>
+            )}
           </Box>
         </Toolbar>
       </Container>
