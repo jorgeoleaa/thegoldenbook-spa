@@ -18,10 +18,18 @@ import AdbIcon from '@mui/icons-material/Adb';
 import { styled } from '@mui/material/styles';
 import Badge, { badgeClasses } from '@mui/material/Badge';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCartOutlined';
+import { CartContext } from '../states/contexts';
+import { useNavigate } from '@tanstack/react-router';
+import { LineaPedido } from '../services/proxy/generated/models/LineaPedido';
+import { ClienteDTO, DefaultApi, Pedido } from '../services/proxy/generated';
+import { CreatePedidoRequest } from '../services/proxy/generated';
 
 const settings = ['Mi perfil', 'Mis pedidos', 'Salir'];
 
 function Header() {
+
+  const clienteInSession: ClienteDTO | null = JSON.parse(sessionStorage.getItem('usuarioAutenticado') || 'null');
+
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
@@ -55,6 +63,46 @@ function Header() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const cartContext = useContext(CartContext);
+
+  if (!cartContext) {
+    throw new Error("CartContext debe usarse dentro de un CartProvider");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [cart, setCart] = cartContext;
+  const api = new DefaultApi();
+  const navigate = useNavigate();
+
+  async function showCart() {
+
+    console.log(cart);
+
+    if (cart) {
+      navigate({ to: "/cart" });
+    } else {
+      const lineas: LineaPedido[] = [];
+
+      const pedido: Pedido = {
+        clienteId: clienteAutenticado?.id,
+        tipoEstadoPedidoId: 7,
+        lineas: lineas,
+        fechaRealizacion: new Date()
+      }
+
+      const createPedidoRequest: CreatePedidoRequest = {
+        pedido: pedido
+      }
+
+      const carritoCreado = await api.createPedido(createPedidoRequest);
+      setCart(carritoCreado);
+
+      navigate({ to: "/cart" });
+    }
+
+
+  }
 
   return (
     <AppBar position="static" sx={{ backgroundColor: 'black' }}>
@@ -155,15 +203,14 @@ function Header() {
             </Button>
           </Box>
           <Box sx={{ flexGrow: 0 }}>
-            {clienteAutenticado ? (
+            {clienteInSession ? (
               <>
                 <IconButton
-                component={Link}
-                to="/cart" 
-                sx={{ mr: 2 }}
+                  onClick={showCart}
+                  sx={{ mr: 2 }}
                 >
-                <ShoppingCartIcon fontSize="medium" sx={{ color: 'white' }} />
-                  <CartBadge badgeContent={2} color="primary" overlap="circular" />
+                  <ShoppingCartIcon fontSize="medium" sx={{ color: 'white' }} />
+                  <CartBadge badgeContent={cart?.lineas?.length} color="primary" overlap="circular" />
                 </IconButton>
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>

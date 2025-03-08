@@ -114,6 +114,7 @@ function LibroSearch () {
 
     // Calcular los libros a mostrar en la página actual
     const librosPaginados = libros.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+    console.log(librosPaginados);
 
     return (
         <Grid2 container spacing={2}>

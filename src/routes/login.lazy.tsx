@@ -12,9 +12,9 @@ import {
   Alert,
 } from "@mui/material";
 import { createLazyFileRoute, useNavigate } from "@tanstack/react-router";
-import { AutenticarClienteRequest, DefaultApi } from "../services/proxy/generated/apis/DefaultApi";
+import { AutenticarClienteRequest, DefaultApi, FindPedidosByCriteriaRequest } from "../services/proxy/generated/apis/DefaultApi";
 import { ClienteCredentials } from "../services/proxy/generated/models";
-import { ClienteContext } from "../states/contexts";
+import { CartContext, ClienteContext } from "../states/contexts";
 
 export const Route = createLazyFileRoute("/login")({
   component: Login,
@@ -30,35 +30,63 @@ function Login() {
   }
 
   const [clienteAutenticado, setClienteAutenticado] = clienteContext;
+
+  const cartContext = useContext(CartContext);
+
+  if(!cartContext){
+    throw new Error("CartContext debe usarse dentro de un CartProvider");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [ cart, setCart ] = cartContext;
+ 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate(); 
-
+     
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
     console.log(clienteAutenticado);
 
     try {
-      const clienteCredentials: ClienteCredentials = {
-        mail: email,
-        password: password,
-      };
+        const clienteCredentials: ClienteCredentials = {
+            mail: email,
+            password: password,
+        };
 
-      const autenticarClienteRequest: AutenticarClienteRequest = {
-        clienteCredentials: clienteCredentials,
-      };
-      const usuarioAutenticado = await api.autenticarCliente(autenticarClienteRequest);
-      setClienteAutenticado(usuarioAutenticado);
-      console.log("Usuario autenticado:", usuarioAutenticado);
-      navigate({ to: "/libroSearch" }); 
-    } catch (err) {
-      console.log(err);
-      setError("Credenciales incorrectas. Inténtalo de nuevo. ");
+        const autenticarClienteRequest: AutenticarClienteRequest = {
+            clienteCredentials: clienteCredentials,
+        };
+
+        const usuarioAutenticado = await api.autenticarCliente(autenticarClienteRequest);
+        setClienteAutenticado(usuarioAutenticado);
+
+        console.log("Cliente autenticado: " + usuarioAutenticado);
+
+        if (usuarioAutenticado?.id) {
+            sessionStorage.setItem('usuarioAutenticado', JSON.stringify(usuarioAutenticado));
+
+            const criteria: FindPedidosByCriteriaRequest = {
+                clienteId: usuarioAutenticado.id,
+                tipoEstadoPedidoId: 7,
+            };
+
+            const carritoClienteAutenticado = await api.findPedidosByCriteria(criteria);
+            setCart(carritoClienteAutenticado[0]);
+
+            console.log("Usuario autenticado:", usuarioAutenticado);
+            console.log("Carrito del usuario autenticado: " + carritoClienteAutenticado[0]);
+        }
+
+        navigate({ to: "/libroSearch" });
+    } catch (error) {
+        setError("Error al autenticar el cliente");
+        console.error(error);
     }
-  };
+};
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>

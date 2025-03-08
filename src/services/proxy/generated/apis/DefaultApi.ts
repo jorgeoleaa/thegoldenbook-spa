@@ -113,6 +113,10 @@ export interface FindPedidosByCriteriaRequest {
     tipoEstadoPedidoId?: number;
 }
 
+export interface FindValoracionByLibroRequest {
+    libroId?: number;
+}
+
 export interface GetExternalGrammarRequest {
     path: string;
 }
@@ -587,6 +591,38 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
+     * Busca todas las valoraciones que pertenecen al libro del id proporcionado
+     * Buscar las valoraciones de un libro
+     */
+    async findValoracionByLibroRaw(requestParameters: FindValoracionByLibroRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<ValoracionDTO>>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['libroId'] != null) {
+            queryParameters['libroId'] = requestParameters['libroId'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/valoracion`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(ValoracionDTOFromJSON));
+    }
+
+    /**
+     * Busca todas las valoraciones que pertenecen al libro del id proporcionado
+     * Buscar las valoraciones de un libro
+     */
+    async findValoracionByLibro(requestParameters: FindValoracionByLibroRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<ValoracionDTO>> {
+        const response = await this.findValoracionByLibroRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      */
     async getExternalGrammarRaw(requestParameters: GetExternalGrammarRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters['path'] == null) {
@@ -674,7 +710,7 @@ export class DefaultApi extends runtime.BaseAPI {
      * Actualiza todos los datos pertenecientes al pedido
      * Actualización de un pedido
      */
-    async updatePedidoRaw(requestParameters: UpdatePedidoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async updatePedidoRaw(requestParameters: UpdatePedidoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Pedido>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -689,15 +725,16 @@ export class DefaultApi extends runtime.BaseAPI {
             body: PedidoToJSON(requestParameters['pedido']),
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => PedidoFromJSON(jsonValue));
     }
 
     /**
      * Actualiza todos los datos pertenecientes al pedido
      * Actualización de un pedido
      */
-    async updatePedido(requestParameters: UpdatePedidoRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.updatePedidoRaw(requestParameters, initOverrides);
+    async updatePedido(requestParameters: UpdatePedidoRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Pedido> {
+        const response = await this.updatePedidoRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
 }

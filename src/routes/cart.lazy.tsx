@@ -2,6 +2,8 @@ import { createLazyFileRoute } from '@tanstack/react-router';
 import { CartContext } from '../states/contexts';
 import { useContext } from 'react';
 import { Grid, Card, CardContent, Typography, Button, Box, Divider } from '@mui/material';
+import { DefaultApi } from '../services/proxy/generated';
+import { UpdatePedidoRequest } from '../services/proxy/generated/apis/DefaultApi';
 
 export const Route = createLazyFileRoute('/cart')({
   component: Cart,
@@ -9,6 +11,7 @@ export const Route = createLazyFileRoute('/cart')({
 
 function Cart() {
 
+  const api = new DefaultApi();
   const cartContext = useContext(CartContext);
 
   if (!cartContext) {
@@ -27,11 +30,17 @@ function Cart() {
     );
   }
 
-  const handleRemoveItem = (libroId: number) => {
-    const updatedOrderLines = cart.lineas?.filter(line => line.libroId !== libroId);
+  async function handleRemoveItem (libroId: number){
+    const updatedOrderLines = cart?.lineas?.filter(line => line.libroId !== libroId);
     const updatedOrder = { ...cart, lineas: updatedOrderLines };
 
-    setCart(updatedOrder); 
+    const request : UpdatePedidoRequest ={
+      pedido: updatedOrder
+    }
+
+    const carritoActualizado = await api.updatePedido(request);
+
+    setCart(carritoActualizado); 
   };
 
   const totalPrice = cart.lineas.reduce((total, line) => total + ((line.precio ?? 0) * (line.unidades ?? 0)), 0);

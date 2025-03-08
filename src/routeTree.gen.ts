@@ -19,6 +19,7 @@ import { Route as rootRoute } from './routes/__root'
 const ProfileLazyImport = createFileRoute('/profile')()
 const LoginLazyImport = createFileRoute('/login')()
 const LibroSearchLazyImport = createFileRoute('/libroSearch')()
+const LibroDetailLazyImport = createFileRoute('/libroDetail')()
 const CartLazyImport = createFileRoute('/cart')()
 const AboutusLazyImport = createFileRoute('/aboutus')()
 
@@ -41,6 +42,12 @@ const LibroSearchLazyRoute = LibroSearchLazyImport.update({
   path: '/libroSearch',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/libroSearch.lazy').then((d) => d.Route))
+
+const LibroDetailLazyRoute = LibroDetailLazyImport.update({
+  id: '/libroDetail',
+  path: '/libroDetail',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/libroDetail.lazy').then((d) => d.Route))
 
 const CartLazyRoute = CartLazyImport.update({
   id: '/cart',
@@ -72,6 +79,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CartLazyImport
       parentRoute: typeof rootRoute
     }
+    '/libroDetail': {
+      id: '/libroDetail'
+      path: '/libroDetail'
+      fullPath: '/libroDetail'
+      preLoaderRoute: typeof LibroDetailLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/libroSearch': {
       id: '/libroSearch'
       path: '/libroSearch'
@@ -101,6 +115,7 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/aboutus': typeof AboutusLazyRoute
   '/cart': typeof CartLazyRoute
+  '/libroDetail': typeof LibroDetailLazyRoute
   '/libroSearch': typeof LibroSearchLazyRoute
   '/login': typeof LoginLazyRoute
   '/profile': typeof ProfileLazyRoute
@@ -109,6 +124,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/aboutus': typeof AboutusLazyRoute
   '/cart': typeof CartLazyRoute
+  '/libroDetail': typeof LibroDetailLazyRoute
   '/libroSearch': typeof LibroSearchLazyRoute
   '/login': typeof LoginLazyRoute
   '/profile': typeof ProfileLazyRoute
@@ -118,6 +134,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/aboutus': typeof AboutusLazyRoute
   '/cart': typeof CartLazyRoute
+  '/libroDetail': typeof LibroDetailLazyRoute
   '/libroSearch': typeof LibroSearchLazyRoute
   '/login': typeof LoginLazyRoute
   '/profile': typeof ProfileLazyRoute
@@ -125,16 +142,36 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/aboutus' | '/cart' | '/libroSearch' | '/login' | '/profile'
+  fullPaths:
+    | '/aboutus'
+    | '/cart'
+    | '/libroDetail'
+    | '/libroSearch'
+    | '/login'
+    | '/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/aboutus' | '/cart' | '/libroSearch' | '/login' | '/profile'
-  id: '__root__' | '/aboutus' | '/cart' | '/libroSearch' | '/login' | '/profile'
+  to:
+    | '/aboutus'
+    | '/cart'
+    | '/libroDetail'
+    | '/libroSearch'
+    | '/login'
+    | '/profile'
+  id:
+    | '__root__'
+    | '/aboutus'
+    | '/cart'
+    | '/libroDetail'
+    | '/libroSearch'
+    | '/login'
+    | '/profile'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   AboutusLazyRoute: typeof AboutusLazyRoute
   CartLazyRoute: typeof CartLazyRoute
+  LibroDetailLazyRoute: typeof LibroDetailLazyRoute
   LibroSearchLazyRoute: typeof LibroSearchLazyRoute
   LoginLazyRoute: typeof LoginLazyRoute
   ProfileLazyRoute: typeof ProfileLazyRoute
@@ -143,6 +180,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   AboutusLazyRoute: AboutusLazyRoute,
   CartLazyRoute: CartLazyRoute,
+  LibroDetailLazyRoute: LibroDetailLazyRoute,
   LibroSearchLazyRoute: LibroSearchLazyRoute,
   LoginLazyRoute: LoginLazyRoute,
   ProfileLazyRoute: ProfileLazyRoute,
@@ -160,6 +198,7 @@ export const routeTree = rootRoute
       "children": [
         "/aboutus",
         "/cart",
+        "/libroDetail",
         "/libroSearch",
         "/login",
         "/profile"
@@ -170,6 +209,9 @@ export const routeTree = rootRoute
     },
     "/cart": {
       "filePath": "cart.lazy.tsx"
+    },
+    "/libroDetail": {
+      "filePath": "libroDetail.lazy.tsx"
     },
     "/libroSearch": {
       "filePath": "libroSearch.lazy.tsx"

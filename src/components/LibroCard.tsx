@@ -1,22 +1,27 @@
 import { Button, Card, CardContent, CardMedia, Typography } from "@mui/material";
 import { ThemeProvider } from '@mui/material/styles';
 import theme from "../themes/themes";
-import { CreatePedidoRequest, FindPedidosByCriteriaRequest, LibroDTO } from "../services/proxy/generated";
+import { LibroDTO, UpdatePedidoRequest } from "../services/proxy/generated";
 import { DefaultApi } from "../services/proxy/generated";
 import { ClienteContext } from "../states/contexts";
 import { useNavigate } from '@tanstack/react-router';
 import { useContext } from "react";
-import { Pedido } from '../services/proxy/generated/models/Pedido';
 import { CartContext } from "../states/contexts";
 import { LineaPedido } from "../services/proxy/generated";
+import { Pedido } from "../services/proxy/generated";
+import { CreatePedidoRequest } from '../services/proxy/generated/apis/DefaultApi';
+import { HistoryState } from '@tanstack/react-router'; // Importa HistoryState
 
 interface LibroCardProps {
-  libro: LibroDTO
+  libro: LibroDTO;
 }
 
+// Tipo personalizado para el estado de navegación
+type LibroNavigationState = HistoryState & {
+  libro: LibroDTO;
+};
 
 const LibroCard: React.FC<LibroCardProps> = ({ libro }) => {
-
   const cartContext = useContext(CartContext);
   const navigate = useNavigate();
 
@@ -35,64 +40,61 @@ const LibroCard: React.FC<LibroCardProps> = ({ libro }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [clienteAutenticado, setClienteAutenticado] = clienteContext;
 
-  const pedidoCriteria: FindPedidosByCriteriaRequest = {
-    id: undefined,
-    fechaDesde: undefined,
-    fechaHasta: undefined,
-    precioDesde: undefined,
-    precioHasta: undefined,
-    clienteId: clienteAutenticado?.id,
-    tipoEstadoPedidoId: 7
-  }
-
   const api = new DefaultApi();
 
-  async function fetchCart() {
-
-    if(!cart){
-      const existingPedido = await api.findPedidosByCriteria(pedidoCriteria);
-      console.log(existingPedido);
-
+  async function addToCart() {
+    if (cart) {
       const linea: LineaPedido = {
         precio: libro.precio,
         libroId: libro.id,
-        unidades: 1
-      }
+        unidades: 1,
+        nombreLibro: libro.nombre,
+      };
 
-      existingPedido[0].lineas?.push(linea);
+      cart.lineas?.push(linea);
 
-      console.log(existingPedido);
+      const updatePedidoRequest: UpdatePedidoRequest = {
+        pedido: cart,
+      };
 
-      setCart(existingPedido[0]);
-      navigate({ to: "/cart" }); 
-      return;
-    }else{
-
+      const pedidoActualizado = await api.updatePedido(updatePedidoRequest);
+      setCart(pedidoActualizado);
+    } else {
       const linea: LineaPedido = {
         precio: libro.precio,
         libroId: libro.id,
-        unidades: 1
-      }
+        unidades: 1,
+        nombreLibro: libro.nombre,
+      };
 
-      const lineas : LineaPedido[] = [linea];
+      const lineas: LineaPedido[] = [linea];
 
-      const pedidoCarrito: Pedido = {
+      const pedido: Pedido = {
         clienteId: clienteAutenticado?.id,
         tipoEstadoPedidoId: 7,
-        lineas: lineas
-      } 
+        lineas: lineas,
+        fechaRealizacion: new Date(),
+      };
 
-      const pedidoCarritoRequest: CreatePedidoRequest = {
-        pedido: pedidoCarrito
-      }
+      const createPedidoRequest: CreatePedidoRequest = {
+        pedido: pedido,
+      };
 
-      const pedidoCarritoCreado = await api.createPedido(pedidoCarritoRequest);
-
-      setCart(pedidoCarritoCreado);
+      const carritoCreado = await api.createPedido(createPedidoRequest);
+      setCart(carritoCreado);
     }
 
-    navigate({ to: "/cart" }); 
+    navigate({ to: "/cart" });
   }
+
+  const handleClickTitulo = () => {
+    console.log('Navigating with state:', { libro });
+    navigate({
+      to: '/libroDetail',
+      params: { id: libro?.id?.toString() },
+      state: { libro } as LibroNavigationState,
+    });
+  };
 
   return (
     <Card sx={{ maxWidth: 250, boxShadow: 3, borderRadius: 2 }}>
@@ -103,23 +105,29 @@ const LibroCard: React.FC<LibroCardProps> = ({ libro }) => {
         image={"../src/assets/imgs/no_image.webp"}
       />
       <CardContent>
-        <Typography variant="h6" component="div">
+        <Typography
+          variant="h6"
+          component="div"
+          onClick={handleClickTitulo}
+          sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+        >
           {libro.nombre}
         </Typography>
         <Typography variant="subtitle1" color="text.secondary">
           ${libro.precio}
         </Typography>
         <ThemeProvider theme={theme}>
-          <Button 
-          variant='contained' 
-          color='ochre' 
-          onClick={fetchCart}>
+          <Button
+            variant='contained'
+            color='ochre'
+            onClick={addToCart}
+          >
             Añadir al carrito
           </Button>
         </ThemeProvider>
       </CardContent>
     </Card>
   );
-}
+};
 
 export default LibroCard;
