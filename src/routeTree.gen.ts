@@ -17,11 +17,13 @@ import { Route as rootRoute } from './routes/__root'
 // Create Virtual Routes
 
 const ProfileLazyImport = createFileRoute('/profile')()
+const PedidosLazyImport = createFileRoute('/pedidos')()
 const LoginLazyImport = createFileRoute('/login')()
 const LibroSearchLazyImport = createFileRoute('/libroSearch')()
 const LibroDetailLazyImport = createFileRoute('/libroDetail')()
 const CartLazyImport = createFileRoute('/cart')()
 const AboutusLazyImport = createFileRoute('/aboutus')()
+const IndexLazyImport = createFileRoute('/')()
 
 // Create/Update Routes
 
@@ -30,6 +32,12 @@ const ProfileLazyRoute = ProfileLazyImport.update({
   path: '/profile',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/profile.lazy').then((d) => d.Route))
+
+const PedidosLazyRoute = PedidosLazyImport.update({
+  id: '/pedidos',
+  path: '/pedidos',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/pedidos.lazy').then((d) => d.Route))
 
 const LoginLazyRoute = LoginLazyImport.update({
   id: '/login',
@@ -61,10 +69,23 @@ const AboutusLazyRoute = AboutusLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/aboutus.lazy').then((d) => d.Route))
 
+const IndexLazyRoute = IndexLazyImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/aboutus': {
       id: '/aboutus'
       path: '/aboutus'
@@ -100,6 +121,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginLazyImport
       parentRoute: typeof rootRoute
     }
+    '/pedidos': {
+      id: '/pedidos'
+      path: '/pedidos'
+      fullPath: '/pedidos'
+      preLoaderRoute: typeof PedidosLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -113,76 +141,92 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexLazyRoute
   '/aboutus': typeof AboutusLazyRoute
   '/cart': typeof CartLazyRoute
   '/libroDetail': typeof LibroDetailLazyRoute
   '/libroSearch': typeof LibroSearchLazyRoute
   '/login': typeof LoginLazyRoute
+  '/pedidos': typeof PedidosLazyRoute
   '/profile': typeof ProfileLazyRoute
 }
 
 export interface FileRoutesByTo {
+  '/': typeof IndexLazyRoute
   '/aboutus': typeof AboutusLazyRoute
   '/cart': typeof CartLazyRoute
   '/libroDetail': typeof LibroDetailLazyRoute
   '/libroSearch': typeof LibroSearchLazyRoute
   '/login': typeof LoginLazyRoute
+  '/pedidos': typeof PedidosLazyRoute
   '/profile': typeof ProfileLazyRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
+  '/': typeof IndexLazyRoute
   '/aboutus': typeof AboutusLazyRoute
   '/cart': typeof CartLazyRoute
   '/libroDetail': typeof LibroDetailLazyRoute
   '/libroSearch': typeof LibroSearchLazyRoute
   '/login': typeof LoginLazyRoute
+  '/pedidos': typeof PedidosLazyRoute
   '/profile': typeof ProfileLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/aboutus'
     | '/cart'
     | '/libroDetail'
     | '/libroSearch'
     | '/login'
+    | '/pedidos'
     | '/profile'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/aboutus'
     | '/cart'
     | '/libroDetail'
     | '/libroSearch'
     | '/login'
+    | '/pedidos'
     | '/profile'
   id:
     | '__root__'
+    | '/'
     | '/aboutus'
     | '/cart'
     | '/libroDetail'
     | '/libroSearch'
     | '/login'
+    | '/pedidos'
     | '/profile'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
+  IndexLazyRoute: typeof IndexLazyRoute
   AboutusLazyRoute: typeof AboutusLazyRoute
   CartLazyRoute: typeof CartLazyRoute
   LibroDetailLazyRoute: typeof LibroDetailLazyRoute
   LibroSearchLazyRoute: typeof LibroSearchLazyRoute
   LoginLazyRoute: typeof LoginLazyRoute
+  PedidosLazyRoute: typeof PedidosLazyRoute
   ProfileLazyRoute: typeof ProfileLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexLazyRoute: IndexLazyRoute,
   AboutusLazyRoute: AboutusLazyRoute,
   CartLazyRoute: CartLazyRoute,
   LibroDetailLazyRoute: LibroDetailLazyRoute,
   LibroSearchLazyRoute: LibroSearchLazyRoute,
   LoginLazyRoute: LoginLazyRoute,
+  PedidosLazyRoute: PedidosLazyRoute,
   ProfileLazyRoute: ProfileLazyRoute,
 }
 
@@ -196,13 +240,18 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
+        "/",
         "/aboutus",
         "/cart",
         "/libroDetail",
         "/libroSearch",
         "/login",
+        "/pedidos",
         "/profile"
       ]
+    },
+    "/": {
+      "filePath": "index.lazy.tsx"
     },
     "/aboutus": {
       "filePath": "aboutus.lazy.tsx"
@@ -218,6 +267,9 @@ export const routeTree = rootRoute
     },
     "/login": {
       "filePath": "login.lazy.tsx"
+    },
+    "/pedidos": {
+      "filePath": "pedidos.lazy.tsx"
     },
     "/profile": {
       "filePath": "profile.lazy.tsx"

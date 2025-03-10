@@ -1,39 +1,38 @@
-import Grid2 from '@mui/material/Grid2';
-import TextField from "@mui/material/TextField";
-import theme from "../themes/themes";
-import { ThemeProvider } from '@mui/material/styles';
-import { Button, FormControlLabel, Grid } from '@mui/material';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import {
+    Grid,
+    TextField,
+    ThemeProvider,
+    Button,
+    FormControlLabel,
+    Box,
+    Slider,
+    FormGroup,
+    Checkbox,
+    Autocomplete,
+    Pagination,
+    Typography,
+    Paper,
+} from '@mui/material';
 import { DefaultApi, FindLibrosByCriteriaRequest, FindIdiomasByLocaleRequest, FindEdadesByLocaleRequest, GeneroLiterario, FindGenerosLiterariosByLocaleRequest } from '../services/proxy/generated';
-import { LibroDTO } from '../services/proxy/generated';
-import Box from '@mui/material/Box';
-import Slider from '@mui/material/Slider';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LibroDTO, Idioma, ClasificacionEdad } from '../services/proxy/generated/models';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
-import FormGroup from '@mui/material/FormGroup';
-import Checkbox from '@mui/material/Checkbox';
-import { Idioma } from '../services/proxy/generated/models/Idioma';
-import Autocomplete from '@mui/material/Autocomplete';
-import { ClasificacionEdad } from '../services/proxy/generated';
 import LibroCard from '../components/LibroCard';
-import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
+import theme from '../themes/themes';
 import { createLazyFileRoute } from '@tanstack/react-router';
 
 export const Route = createLazyFileRoute('/libroSearch')({
     component: LibroSearch,
-})
+});
 
-function LibroSearch () {
-
+function LibroSearch() {
     const api = new DefaultApi();
 
     const locale: FindIdiomasByLocaleRequest | FindEdadesByLocaleRequest | FindGenerosLiterariosByLocaleRequest = {
-        locale: "it"
-    }
+        locale: "es"
+    };
 
     const [value, setValue] = useState<number[]>([10, 50]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -51,14 +50,13 @@ function LibroSearch () {
     const [generosLiterarios, setGenerosLiterarios] = useState<GeneroLiterario[] | undefined>(undefined);
     const [generoLiterarioId, setGeneroLiterarioId] = useState<number | undefined>(undefined);
     const [page, setPage] = useState<number>(1);
-    const [rowsPerPage] = useState<number>(8);
+    const [rowsPerPage] = useState<number>(12);
 
     async function fetchLibros() {
         setLoading(true);
-
         const LibroCriteria: FindLibrosByCriteriaRequest = {
             nombre: titulo,
-            locale: "it",
+            locale: "es",
             desdePrecio: precioDesde,
             hastaPrecio: precioHasta,
             desdeFecha: fechaDesde,
@@ -66,8 +64,7 @@ function LibroSearch () {
             idiomaId: idiomaId,
             clasificacionEdadId: clasificacionEdadId,
             generoLiterarioId: generoLiterarioId
-        }
-
+        };
         setLibros(await api.findLibrosByCriteria(LibroCriteria));
         setLoading(false);
     };
@@ -112,123 +109,153 @@ function LibroSearch () {
         setPage(value);
     };
 
-    // Calcular los libros a mostrar en la página actual
     const librosPaginados = libros.slice((page - 1) * rowsPerPage, page * rowsPerPage);
-    console.log(librosPaginados);
 
     return (
-        <Grid2 container spacing={2}>
-            <Grid2 size={3}>
-                <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                >
-                    <TextField
-                        label="Buscar libro"
-                        variant="outlined"
-                        fullWidth
-                        value={titulo}
-                        onChange={(e) => setTitulo(e.target.value)}
-                    />
-                </Box>
-                <Box sx={{ width: 300 }}>
-                    <p>Rango de precio:</p>
-                    <Slider
-                        getAriaLabel={() => 'Rango de precio'}
-                        value={value}
-                        onChange={handleSliderChange}
-                        valueLabelDisplay='auto'
-                        getAriaValueText={valueText}
-                        max={500}
-                    />
-                </Box>
-                <p>Fecha de publicación desde - hasta</p>
-                <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                >
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer components={['DatePicker']}>
-                            <DatePicker
-                                value={fechaDesde ? dayjs(fechaDesde) : null}
-                                onChange={(nuevaFechaDesde) => setFechaDesde(nuevaFechaDesde?.startOf('day').toDate())}
-                                label="Fecha desde"
-                            />
-                        </DemoContainer>
-                    </LocalizationProvider>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer components={['DatePicker']}>
-                            <DatePicker
-                                value={fechaHasta ? dayjs(fechaHasta) : null}
-                                onChange={(nuevaFechaHasta) => setFechaHasta(nuevaFechaHasta?.startOf('day').toDate())}
-                                label="Fecha hasta"
-                            />
-                        </DemoContainer>
-                    </LocalizationProvider>
-                </Box>
-                <p>Idioma:</p>
-                <Box
-                    display="flex"
-                >
-                    <FormGroup>
-                        {idiomas?.map((idioma, index) => (
-                            <FormControlLabel
-                                key={idioma.id}
-                                control={
-                                    <Checkbox
-                                        checked={selected === index}
-                                        onChange={() => handleIdiomaChange(index, idioma.id)}
+        <ThemeProvider theme={theme}>
+            <Box sx={{ width: '100%', p: 3 }}>
+                <Grid container spacing={4}>
+                    {/* Filtros */}
+                    <Grid item xs={12} md={3}>
+                        <Paper elevation={3} sx={{ p: 3 }}>
+                            <Typography variant="h6" gutterBottom>
+                                Filtros
+                            </Typography>
+                            <Box sx={{ mb: 3 }}>
+                                <TextField
+                                    label="Buscar libro"
+                                    variant="outlined"
+                                    fullWidth
+                                    value={titulo}
+                                    onChange={(e) => setTitulo(e.target.value)}
+                                />
+                            </Box>
+                            <Box sx={{ mb: 3 }}>
+                                <Typography variant="subtitle1" gutterBottom>
+                                    Rango de precio
+                                </Typography>
+                                <Slider
+                                    getAriaLabel={() => 'Rango de precio'}
+                                    value={value}
+                                    onChange={handleSliderChange}
+                                    valueLabelDisplay="auto"
+                                    getAriaValueText={valueText}
+                                    max={500}
+                                />
+                            </Box>
+                            <Box sx={{ mb: 3 }}>
+                                <Typography variant="subtitle1" gutterBottom>
+                                    Fecha de publicación
+                                </Typography>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        value={fechaDesde ? dayjs(fechaDesde) : null}
+                                        onChange={(nuevaFechaDesde) => setFechaDesde(nuevaFechaDesde?.startOf('day').toDate())}
+                                        label="Fecha desde"
+                                        sx={{ mb: 2, width: '100%' }}
                                     />
-                                }
-                                label={idioma.nombre}
-                            />
-                        ))}
-                    </FormGroup>
-                </Box>
-                <Box>
-                    <p>Edades:</p>
-                    <Autocomplete
-                        disablePortal
-                        options={edades || []}
-                        getOptionLabel={(option) => option.nombre || ""}
-                        onChange={(e, newValue) => setClasificacionEdadId(newValue?.id)}
-                        sx={{ width: 300 }}
-                        renderInput={(params) => <TextField {...params} label="Edades" />}
-                    />
-                </Box>
-                <Box>
-                    <p>Género Literario:</p>
-                    <Autocomplete
-                        disablePortal
-                        options={generosLiterarios || []}
-                        getOptionLabel={(option) => option.nombre || ""}
-                        onChange={(e, newValue) => setGeneroLiterarioId(newValue?.id)}
-                        sx={{ width: 300 }}
-                        renderInput={(params) => <TextField {...params} label="Género Literario" />}
-                    />
-                </Box>
-                <ThemeProvider theme={theme}>
-                    <Button variant='contained' color='ochre' onClick={fetchLibros}>Buscar</Button>
-                </ThemeProvider>
-            </Grid2>
-            <Grid2 size={9}>
-                {loading ?
-                    <p>Loading...</p> :
-                    <Grid container spacing={2}>
-                        {librosPaginados.map((libro) => (
-                            <Grid item xs={12} sm={6} md={3} key={libro.id}>
-                                <LibroCard libro={libro}/>
-                            </Grid>
-                        ))}
+                                    <DatePicker
+                                        value={fechaHasta ? dayjs(fechaHasta) : null}
+                                        onChange={(nuevaFechaHasta) => setFechaHasta(nuevaFechaHasta?.startOf('day').toDate())}
+                                        label="Fecha hasta"
+                                        sx={{ width: '100%' }}
+                                    />
+                                </LocalizationProvider>
+                            </Box>
+                            <Box sx={{ mb: 3 }}>
+                                <Typography variant="subtitle1" gutterBottom>
+                                    Idioma
+                                </Typography>
+                                <FormGroup>
+                                    {idiomas?.map((idioma, index) => (
+                                        <FormControlLabel
+                                            key={idioma.id}
+                                            control={
+                                                <Checkbox
+                                                    checked={selected === index}
+                                                    onChange={() => handleIdiomaChange(index, idioma.id)}
+                                                />
+                                            }
+                                            label={idioma.nombre}
+                                        />
+                                    ))}
+                                </FormGroup>
+                            </Box>
+                            <Box sx={{ mb: 3 }}>
+                                <Typography variant="subtitle1" gutterBottom>
+                                    Edades
+                                </Typography>
+                                <Autocomplete
+                                    disablePortal
+                                    options={edades || []}
+                                    getOptionLabel={(option) => option.nombre || ""}
+                                    onChange={(e, newValue) => setClasificacionEdadId(newValue?.id)}
+                                    sx={{ width: '100%' }}
+                                    renderInput={(params) => <TextField {...params} label="Edades" />}
+                                />
+                            </Box>
+                            <Box sx={{ mb: 3 }}>
+                                <Typography variant="subtitle1" gutterBottom>
+                                    Género Literario
+                                </Typography>
+                                <Autocomplete
+                                    disablePortal
+                                    options={generosLiterarios || []}
+                                    getOptionLabel={(option) => option.nombre || ""}
+                                    onChange={(e, newValue) => setGeneroLiterarioId(newValue?.id)}
+                                    sx={{ width: '100%' }}
+                                    renderInput={(params) => <TextField {...params} label="Género Literario" />}
+                                />
+                            </Box>
+                            <Button variant="contained" color="primary" fullWidth onClick={fetchLibros}>
+                                Buscar
+                            </Button>
+                        </Paper>
                     </Grid>
-                }
-                <Stack spacing={2}>
-                    <Pagination count={Math.ceil(libros.length / rowsPerPage)} page={page} onChange={handlePageChange} variant="outlined" shape="rounded" />
-                </Stack>
-            </Grid2>
-        </Grid2>
+
+                    {/* Resultados */}
+                    <Grid item xs={12} md={9}>
+                        {loading ? (
+                            <Typography variant="h6" align="center">
+                                Cargando...
+                            </Typography>
+                        ) : libros.length === 0 ? (
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    height: '50vh',
+                                }}
+                            >
+                                <Typography variant="h5" color="textSecondary">
+                                    Realiza una búsqueda para ver los resultados.
+                                </Typography>
+                            </Box>
+                        ) : (
+                            <>
+                                <Grid container spacing={3}>
+                                    {librosPaginados.map((libro) => (
+                                        <Grid item xs={12} sm={6} md={3} key={libro.id}>
+                                            <LibroCard libro={libro} />
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                                    <Pagination
+                                        count={Math.ceil(libros.length / rowsPerPage)}
+                                        page={page}
+                                        onChange={handlePageChange}
+                                        variant="outlined"
+                                        shape="rounded"
+                                    />
+                                </Box>
+                            </>
+                        )}
+                    </Grid>
+                </Grid>
+            </Box>
+        </ThemeProvider>
     );
 }
 

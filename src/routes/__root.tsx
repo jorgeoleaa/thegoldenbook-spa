@@ -6,6 +6,7 @@ import { ClienteContext } from '../states/contexts';
 import { ClienteDTO } from '../services/proxy/generated/models/ClienteDTO';
 import { Pedido } from '../services/proxy/generated';
 import { CartContext } from '../states/contexts';
+import Footer from '../components/Footer';
 
 export const Route = createRootRoute({
   component: () => {
@@ -23,6 +24,7 @@ export const Route = createRootRoute({
             <div>
               <Header />
               <Outlet />
+              <Footer/>
             </div>
           </ClienteContext.Provider>
         </CartContext.Provider>

@@ -6,6 +6,8 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { useNavigate } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
 import { ClienteDTO } from '../services/proxy/generated';
+import { DefaultApi } from '../services/proxy/generated';
+import { UpdateClienteRequest } from '../services/proxy/generated/apis/DefaultApi';
 
 export const Route = createLazyFileRoute('/profile')({
   component: Profile,
@@ -15,6 +17,9 @@ function Profile() {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState<ClienteDTO | null>(null);
+  const [originalUser, setOriginalUser] = useState<ClienteDTO | null>(null);
+
+  const api = new DefaultApi();
 
   const usuarioAutenticado: ClienteDTO | null = JSON.parse(sessionStorage.getItem('usuarioAutenticado') || 'null');
 
@@ -38,18 +43,26 @@ function Profile() {
   }
 
   const handleEditClick = () => {
+    setOriginalUser({ ...usuarioAutenticado });
     setEditedUser({ ...usuarioAutenticado });
     setIsEditing(true);
   };
 
   const handleSaveClick = () => {
     if (editedUser) {
+
+      const updateClienteRequest : UpdateClienteRequest = {
+        clienteDTO: editedUser
+      }
+
+      api.updateCliente(updateClienteRequest);
       sessionStorage.setItem('usuarioAutenticado', JSON.stringify(editedUser));
       setIsEditing(false);
     }
   };
 
   const handleCancelClick = () => {
+    setEditedUser(originalUser);
     setIsEditing(false);
   };
 
@@ -133,7 +146,6 @@ function Profile() {
               )}
             </Box>
           </Box>
-
 
           {/* Botones de editar, guardar y cancelar */}
           <Box display="flex" justifyContent="center" mt={3}>

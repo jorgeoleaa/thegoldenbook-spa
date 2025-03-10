@@ -1,261 +1,136 @@
 import * as React from 'react';
 import { useContext } from 'react';
-import { ClienteContext } from '../states/contexts';
-import { Link } from '@tanstack/react-router';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
+import { ClienteContext, CartContext } from '../states/contexts';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { AppBar, Box, Toolbar, IconButton, Typography, Menu, Container, Avatar, Button, Tooltip, MenuItem, Badge } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import Badge, { badgeClasses } from '@mui/material/Badge';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCartOutlined';
-import { CartContext } from '../states/contexts';
-import { useNavigate } from '@tanstack/react-router';
-import { LineaPedido } from '../services/proxy/generated/models/LineaPedido';
-import { ClienteDTO, DefaultApi, Pedido } from '../services/proxy/generated';
-import { CreatePedidoRequest } from '../services/proxy/generated';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import NewReleasesIcon from '@mui/icons-material/NewReleases';
+import ContactMailIcon from '@mui/icons-material/ContactMail';
+import SearchIcon from '@mui/icons-material/Search';
+
+const sections = [
+  { label: 'Inicio', path: '/' },
+  { label: 'Categorías', path: '/categories', icon: <LibraryBooksIcon fontSize="small" /> },
+  { label: 'Novedades', path: '/new-releases', icon: <NewReleasesIcon fontSize="small" /> },
+  { label: 'Contacto', path: '/contact', icon: <ContactMailIcon fontSize="small" /> },
+];
 
 const settings = ['Mi perfil', 'Mis pedidos', 'Salir'];
 
-function Header() {
-
-  const clienteInSession: ClienteDTO | null = JSON.parse(sessionStorage.getItem('usuarioAutenticado') || 'null');
-
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-
-  const CartBadge = styled(Badge)`
-  & .${badgeClasses.badge} {
-    top: -12px;
+const CartBadge = styled(Badge)`
+  & .MuiBadge-badge {
+    top: -8px;
     right: -6px;
   }
 `;
 
+function Header() {
+  const clienteInSession = JSON.parse(sessionStorage.getItem('usuarioAutenticado') || 'null');
+  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const clienteContext = useContext(ClienteContext);
-
-  if (!clienteContext) {
-    throw new Error("ClienteContext debe usarse dentro de un ClienteProvider");
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [clienteAutenticado, setClienteAutenticado] = clienteContext;
-
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
   const cartContext = useContext(CartContext);
-
-  if (!cartContext) {
-    throw new Error("CartContext debe usarse dentro de un CartProvider");
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [cart, setCart] = cartContext;
-  const api = new DefaultApi();
   const navigate = useNavigate();
 
-  async function showCart() {
+  if (!clienteContext || !cartContext) {
+    throw new Error("Los contextos deben usarse dentro de sus respectivos proveedores");
+  }
 
-    console.log(cart);
+  const [cart, setCart] = cartContext;
 
-    if (cart) {
-      navigate({ to: "/cart" });
-    } else {
-      const lineas: LineaPedido[] = [];
-
-      const pedido: Pedido = {
-        clienteId: clienteAutenticado?.id,
-        tipoEstadoPedidoId: 7,
-        lineas: lineas,
-        fechaRealizacion: new Date()
-      }
-
-      const createPedidoRequest: CreatePedidoRequest = {
-        pedido: pedido
-      }
-
-      const carritoCreado = await api.createPedido(createPedidoRequest);
-      setCart(carritoCreado);
-
-      navigate({ to: "/cart" });
-    }
-
-
+  function salir() {
+    sessionStorage.removeItem("usuarioAutenticado");
+    setCart({});
+    navigate({ to: '/' });
   }
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: 'black' }}>
+    <AppBar position="static" sx={{ backgroundColor: '#1E1E1E' }}>
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <img
-            src="../src/assets/imgs/logo-removebg-preview.png"
-            alt="Logo"
-            style={{ height: 40, marginRight: 8, display: 'flex' }}
-          />
+        <Toolbar>
+          <img src="../src/assets/imgs/logo-removebg-preview.png" alt="Logo" style={{ height: 50, marginRight: 16 }} />
           <Typography
             variant="h6"
-            noWrap
             component={Link}
             to="/"
             sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
               fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
+              letterSpacing: '.2rem',
+              color: 'white',
               textDecoration: 'none',
             }}
           >
             The Golden Book
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{ display: { xs: 'block', md: 'none' } }}
-            >
-              <MenuItem onClick={handleCloseNavMenu}>
-                <Typography textAlign="center">
-                  <Link to="/aboutus" style={{ textDecoration: 'none', color: 'inherit' }}>
-                    Sobre Nosotros
-                  </Link>
-                </Typography>
-              </MenuItem>
-            </Menu>
-          </Box>
-          <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component={Link}
-            to="/"
-            sx={{
-              mr: 2,
-              display: { xs: 'flex', md: 'none' },
-              flexGrow: 1,
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            LOGO
-          </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            <Button
-              component={Link}
-              to="/libroSearch"
-              sx={{ my: 2, color: 'white', display: 'block' }}
-            >
-              Búsqueda
-            </Button>
-            <Button
-              component={Link}
-              to="/aboutus"
-              sx={{ my: 2, color: 'white', display: 'block' }}
-            >
-              Sobre Nosotros
-            </Button>
-          </Box>
-          <Box sx={{ flexGrow: 0 }}>
-            {clienteInSession ? (
-              <>
-                <IconButton
-                  onClick={showCart}
-                  sx={{ mr: 2 }}
-                >
-                  <ShoppingCartIcon fontSize="medium" sx={{ color: 'white' }} />
-                  <CartBadge badgeContent={cart?.lineas?.length} color="primary" overlap="circular" />
-                </IconButton>
-                <Tooltip title="Open settings">
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                  </IconButton>
-                </Tooltip>
-                <Menu
-                  sx={{ mt: '45px' }}
-                  id="menu-appbar"
-                  anchorEl={anchorElUser}
-                  anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  open={Boolean(anchorElUser)}
-                  onClose={handleCloseUserMenu}
-                >
-                  {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                      {setting === 'Mi perfil' ? (
-                        <Link to="/profile" style={{ textDecoration: 'none', color: 'inherit' }}>
-                          <Typography textAlign="center">{setting}</Typography>
-                        </Link>
-                      ) : (
-                        <Typography textAlign="center">{setting}</Typography>
-                      )}
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </>
-            ) : (
+          {/* Secciones para pantallas grandes */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, ml: 4 }}>
+            {sections.map((section) => (
               <Button
+                key={section.label}
                 component={Link}
-                to="/login"
-                variant="contained"
+                to={section.path}
+                startIcon={section.icon}
+                sx={{ my: 2, color: 'white', display: 'flex' }}
               >
-                Iniciar Sesion
+                {section.label}
               </Button>
-            )}
+            ))}
           </Box>
+
+          {/* Ícono de búsqueda */}
+          <IconButton component={Link} to="/libroSearch" sx={{ color: 'white', mr: 2 }}>
+            <SearchIcon />
+          </IconButton>
+
+          {/* Carrito de compras */}
+          <IconButton onClick={() => navigate({ to: '/cart' })} sx={{ color: 'white', mr: 2 }}>
+            <CartBadge badgeContent={cart?.lineas?.length} color="primary">
+              <ShoppingCartIcon />
+            </CartBadge>
+          </IconButton>
+
+          {/* Menú de usuario */}
+          {clienteInSession ? (
+            <Tooltip title="Configuración">
+              <IconButton onClick={(e) => setAnchorElUser(e.currentTarget)} sx={{ p: 0 }}>
+                <Avatar />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Button component={Link} to="/login" variant="contained">Iniciar Sesión</Button>
+          )}
+          <Menu
+            anchorEl={anchorElUser}
+            open={Boolean(anchorElUser)}
+            onClose={() => setAnchorElUser(null)}
+            sx={{ mt: '45px' }}
+          >
+            {settings.map((setting) => (
+              <MenuItem key={setting} onClick={() => {
+                setAnchorElUser(null);
+                if (setting === 'Salir') {
+                  salir(); 
+                } else if (setting === 'Mi perfil') {
+                  navigate({to: '/profile'}); 
+                } else if (setting === 'Mis pedidos') {
+                  navigate({to: '/pedidos'});
+                }
+              }}>
+                {setting === 'Mi perfil' || setting === 'Mis pedidos' ? (
+                  <Link
+                    to={setting === 'Mi perfil' ? '/profile' : '/pedidos'}
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {setting}
+                  </Link>
+                ) : (
+                  setting
+                )}
+              </MenuItem>
+            ))}
+          </Menu>
         </Toolbar>
       </Container>
     </AppBar>

@@ -9,43 +9,126 @@ import {
     Divider,
     Rating,
     Box,
+    Button,
 } from '@mui/material';
-import { useLocation } from '@tanstack/react-router';
-import { LibroDTO, Autor, Tematica, ValoracionDTO, FindValoracionByLibroRequest } from '../services/proxy/generated';
+import { useLocation, useNavigate } from '@tanstack/react-router';
+import { LibroDTO, Autor, Tematica, ValoracionDTO, FindValoracionByLibroRequest, CreateValoracionRequest, DeleteValoracionRequest } from '../services/proxy/generated';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { DefaultApi } from '../services/proxy/generated';
 import { HistoryState } from '@tanstack/react-router';
+import RatingDialog from '../components/RatingDialog';
+import { ClienteDTO } from '../services/proxy/generated';
 
 export const Route = createLazyFileRoute('/libroDetail')({
     component: LibroDetalle,
 })
 
-// Tipo personalizado para el estado de navegación
 type LibroNavigationState = HistoryState & {
     libro: LibroDTO;
 };
 
 function LibroDetalle() {
     const location = useLocation();
+    const navigate = useNavigate();
+    const api = new DefaultApi();
+
+    const cliente: ClienteDTO | null = JSON.parse(sessionStorage.getItem('usuarioAutenticado') || 'null');
+
     const [valoraciones, setValoraciones] = useState<ValoracionDTO[]>([]);
     const [loading, setLoading] = useState(true);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [imagenesLibro, setImagenesLibro] = useState<string[]>([]); // Estado para las URLs de las imágenes
 
-    // Conversión segura del estado de navegación
     const libro = (location.state as unknown as LibroNavigationState)?.libro;
 
     useEffect(() => {
         if (libro) {
-            const api = new DefaultApi();
-            const request: FindValoracionByLibroRequest = { libroId: libro.id };
-            api.findValoracionByLibro(request).then((response: ValoracionDTO[]) => {
-                setValoraciones(response);
-                setLoading(false);
-            }).catch((error: Error) => {
-                console.error('Error fetching valoraciones:', error);
-                setLoading(false);
-            });
+            // Obtener las valoraciones del libro
+            const fetchValoraciones = async () => {
+                try {
+                    const request: FindValoracionByLibroRequest = { libroId: libro.id };
+                    const response = await api.findValoracionByLibro(request);
+                    setValoraciones(response);
+                    setLoading(false);
+                } catch (error) {
+                    console.error('Error fetching valoraciones:', error);
+                    setLoading(false);
+                }
+            };
+
+            // Obtener las imágenes del libro
+            const fetchImagenes = async () => {
+                try {
+                    const response = await fetch(`http://localhost:8080/image/${libro.id}/imagenes?locale=es`);
+                    if (!response.ok) {
+                        throw new Error("No se pudieron obtener las imágenes.");
+                    }
+
+                    const imageBytesList = await response.json();
+                    const imageUrls = imageBytesList.map((imageBytes: number[]) => {
+                        const blob = new Blob([new Uint8Array(imageBytes)], { type: 'image/jpeg' });
+                        return URL.createObjectURL(blob);
+                    });
+
+                    setImagenesLibro(imageUrls);
+                } catch (error) {
+                    console.error("Error al obtener las imágenes:", error);
+                    setImagenesLibro([]);
+                }
+            };
+
+            fetchValoraciones();
+            fetchImagenes();
         }
     }, [libro]);
+
+    const handleAddRatingClick = () => {
+        if (!cliente) {
+            navigate({ to: '/login' });
+        } else {
+            setDialogOpen(true);
+        }
+    };
+
+    async function handleSaveRating(ratingData: { rating: number; subject: string; body: string }) {
+        const valoracionCreada: ValoracionDTO = {
+            asunto: ratingData.subject,
+            cuerpo: ratingData.body,
+            numeroEstrellas: ratingData.rating,
+            libroId: libro.id,
+            clienteId: cliente?.id
+        };
+
+        const createValoracionRequest: CreateValoracionRequest = {
+            locale: "es",
+            valoracionDTO: valoracionCreada,
+        };
+
+        await api.createValoracion(createValoracionRequest);
+
+        const libroRequest: FindValoracionByLibroRequest = { libroId: libro.id };
+        const valoracionesActualizadas = await api.findValoracionByLibro(libroRequest);
+        setValoraciones(valoracionesActualizadas);
+
+        console.log('Valoración guardada:', ratingData);
+        setDialogOpen(false);
+    };
+
+    const handleDeleteRating = async () => {
+        try {
+            const deleteValoracionRequest: DeleteValoracionRequest = {
+                libroId: libro.id,
+                clienteId: cliente?.id
+            };
+
+            await api.deleteValoracion(deleteValoracionRequest);
+            const libroRequest: FindValoracionByLibroRequest = { libroId: libro.id };
+            const valoracionesActualizadas = await api.findValoracionByLibro(libroRequest);
+            setValoraciones(valoracionesActualizadas);
+        } catch (error) {
+            console.error('Error eliminando valoración:', error);
+        }
+    };
 
     if (!libro) {
         return (
@@ -61,14 +144,17 @@ function LibroDetalle() {
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Card>
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
-                    {/* Imagen del libro */}
-                    <Box sx={{ width: { xs: '100%', md: '30%' } }}>
-                        <CardMedia
-                            component="img"
-                            image="https://via.placeholder.com/400x600"
-                            alt={libro.nombre}
-                            sx={{ borderRadius: 2, height: '100%', objectFit: 'cover' }}
-                        />
+                    {/* Imágenes del libro */}
+                    <Box sx={{ width: { xs: '100%', md: '30%' }, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {imagenesLibro.map((imageUrl, index) => (
+                            <CardMedia
+                                key={index}
+                                component="img"
+                                image={imageUrl}
+                                alt={`Imagen ${index + 1} del libro`}
+                                sx={{ borderRadius: 2, height: '100%', objectFit: 'cover' }}
+                            />
+                        ))}
                     </Box>
 
                     <Box sx={{ width: { xs: '100%', md: '70%' } }}>
@@ -177,9 +263,20 @@ function LibroDetalle() {
                             ) : valoraciones.length > 0 ? (
                                 valoraciones.map((valoracion) => (
                                     <Box key={`${valoracion.clienteId}-${valoracion.libroId}`} sx={{ mb: 2 }}>
-                                        <Typography variant="subtitle1" component="h3">
-                                            {valoracion.asunto}
-                                        </Typography>
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <Typography variant="subtitle1" component="h3">
+                                                {valoracion.asunto}
+                                            </Typography>
+                                            {cliente && valoracion.clienteId === cliente.id && (
+                                                <Button
+                                                    variant="outlined"
+                                                    color="error"
+                                                    onClick={() => handleDeleteRating()}
+                                                >
+                                                    Eliminar
+                                                </Button>
+                                            )}
+                                        </Box>
                                         <Rating
                                             value={valoracion.numeroEstrellas || 0}
                                             precision={1}
@@ -195,10 +292,24 @@ function LibroDetalle() {
                             ) : (
                                 <Typography variant="body1">No hay valoraciones para este libro.</Typography>
                             )}
+
+                            {/* Botón para añadir valoración */}
+                            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                                <Button variant="contained" color="primary" onClick={handleAddRatingClick}>
+                                    Añadir Valoración
+                                </Button>
+                            </Box>
                         </CardContent>
                     </Box>
                 </Box>
             </Card>
+
+            {/* Diálogo para añadir valoración */}
+            <RatingDialog
+                open={dialogOpen}
+                onClose={() => setDialogOpen(false)}
+                onSave={handleSaveRating}
+            />
         </Container>
     );
 }

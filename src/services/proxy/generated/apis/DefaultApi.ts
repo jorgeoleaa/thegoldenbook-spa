@@ -121,7 +121,16 @@ export interface GetExternalGrammarRequest {
     path: string;
 }
 
+export interface GetImagesByBookIdRequest {
+    libroId: number;
+    locale?: string;
+}
+
 export interface RegisterClienteRequest {
+    clienteDTO?: ClienteDTO;
+}
+
+export interface UpdateClienteRequest {
     clienteDTO?: ClienteDTO;
 }
 
@@ -653,6 +662,49 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
+     * Devuelve todas las imágenes asociadas a un libro específico como una lista de arrays de bytes.
+     * Obtener todas las imágenes de un libro
+     */
+    async getImagesByBookIdRaw(requestParameters: GetImagesByBookIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        if (requestParameters['libroId'] == null) {
+            throw new runtime.RequiredError(
+                'libroId',
+                'Required parameter "libroId" was null or undefined when calling getImagesByBookId().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['locale'] != null) {
+            queryParameters['locale'] = requestParameters['locale'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/image/{libroId}/imagenes`.replace(`{${"libroId"}}`, encodeURIComponent(String(requestParameters['libroId']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     * Devuelve todas las imágenes asociadas a un libro específico como una lista de arrays de bytes.
+     * Obtener todas las imágenes de un libro
+     */
+    async getImagesByBookId(requestParameters: GetImagesByBookIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.getImagesByBookIdRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      */
     async getWadlRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const queryParameters: any = {};
@@ -703,6 +755,37 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async registerCliente(requestParameters: RegisterClienteRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ClienteDTO> {
         const response = await this.registerClienteRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Actualiza un cliente introduciendo todos los datos del mismo
+     * Actualización de un cliente
+     */
+    async updateClienteRaw(requestParameters: UpdateClienteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ClienteDTO>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/api/cliente/update`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ClienteDTOToJSON(requestParameters['clienteDTO']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ClienteDTOFromJSON(jsonValue));
+    }
+
+    /**
+     * Actualiza un cliente introduciendo todos los datos del mismo
+     * Actualización de un cliente
+     */
+    async updateCliente(requestParameters: UpdateClienteRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ClienteDTO> {
+        const response = await this.updateClienteRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
