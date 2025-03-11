@@ -37,7 +37,7 @@ function LibroDetalle() {
     const [valoraciones, setValoraciones] = useState<ValoracionDTO[]>([]);
     const [loading, setLoading] = useState(true);
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [imagenesLibro, setImagenesLibro] = useState<string[]>([]); // Estado para las URLs de las imágenes
+    const [imageUrl, setImageUrl] = useState("");
 
     const libro = (location.state as unknown as LibroNavigationState)?.libro;
 
@@ -56,24 +56,12 @@ function LibroDetalle() {
                 }
             };
 
-            // Obtener las imágenes del libro
             const fetchImagenes = async () => {
                 try {
-                    const response = await fetch(`http://localhost:8080/image/${libro.id}/imagenes?locale=es`);
-                    if (!response.ok) {
-                        throw new Error("No se pudieron obtener las imágenes.");
-                    }
-
-                    const imageBytesList = await response.json();
-                    const imageUrls = imageBytesList.map((imageBytes: number[]) => {
-                        const blob = new Blob([new Uint8Array(imageBytes)], { type: 'image/jpeg' });
-                        return URL.createObjectURL(blob);
-                    });
-
-                    setImagenesLibro(imageUrls);
+                    const blob = await api.getImageByBookId({ libroId: libro.id!, locale: 'es' });
+                    setImageUrl(URL.createObjectURL(blob));
                 } catch (error) {
                     console.error("Error al obtener las imágenes:", error);
-                    setImagenesLibro([]);
                 }
             };
 
@@ -146,15 +134,13 @@ function LibroDetalle() {
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
                     {/* Imágenes del libro */}
                     <Box sx={{ width: { xs: '100%', md: '30%' }, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        {imagenesLibro.map((imageUrl, index) => (
-                            <CardMedia
-                                key={index}
-                                component="img"
-                                image={imageUrl}
-                                alt={`Imagen ${index + 1} del libro`}
-                                sx={{ borderRadius: 2, height: '100%', objectFit: 'cover' }}
-                            />
-                        ))}
+                        <CardMedia
+                            key={libro.id}
+                            component="img"
+                            image={imageUrl}
+                            alt={`Imagen ${libro.id! + 1} del libro`}
+                            sx={{ borderRadius: 2, height: '100%', objectFit: 'contain' }} 
+                        />
                     </Box>
 
                     <Box sx={{ width: { xs: '100%', md: '70%' } }}>

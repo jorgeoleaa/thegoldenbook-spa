@@ -121,7 +121,7 @@ export interface GetExternalGrammarRequest {
     path: string;
 }
 
-export interface GetImagesByBookIdRequest {
+export interface GetImageByBookIdRequest {
     libroId: number;
     locale?: string;
 }
@@ -662,14 +662,14 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
-     * Devuelve todas las imágenes asociadas a un libro específico como una lista de arrays de bytes.
-     * Obtener todas las imágenes de un libro
+     * Devuelve una imagen asociada a un libro en formato PNG o JPEG.
+     * Obtener una imagen de un libro
      */
-    async getImagesByBookIdRaw(requestParameters: GetImagesByBookIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+    async getImageByBookIdRaw(requestParameters: GetImageByBookIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
         if (requestParameters['libroId'] == null) {
             throw new runtime.RequiredError(
                 'libroId',
-                'Required parameter "libroId" was null or undefined when calling getImagesByBookId().'
+                'Required parameter "libroId" was null or undefined when calling getImageByBookId().'
             );
         }
 
@@ -682,25 +682,21 @@ export class DefaultApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/api/image/{libroId}/imagenes`.replace(`{${"libroId"}}`, encodeURIComponent(String(requestParameters['libroId']))),
+            path: `/api/image/{libroId}/image`.replace(`{${"libroId"}}`, encodeURIComponent(String(requestParameters['libroId']))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
         }, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<string>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.BlobApiResponse(response);
     }
 
     /**
-     * Devuelve todas las imágenes asociadas a un libro específico como una lista de arrays de bytes.
-     * Obtener todas las imágenes de un libro
+     * Devuelve una imagen asociada a un libro en formato PNG o JPEG.
+     * Obtener una imagen de un libro
      */
-    async getImagesByBookId(requestParameters: GetImagesByBookIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
-        const response = await this.getImagesByBookIdRaw(requestParameters, initOverrides);
+    async getImageByBookId(requestParameters: GetImageByBookIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
+        const response = await this.getImageByBookIdRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

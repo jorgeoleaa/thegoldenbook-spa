@@ -5,7 +5,7 @@ import { LibroDTO, UpdatePedidoRequest } from "../services/proxy/generated";
 import { DefaultApi } from "../services/proxy/generated";
 import { ClienteContext } from "../states/contexts";
 import { useNavigate } from '@tanstack/react-router';
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { CartContext } from "../states/contexts";
 import { LineaPedido } from "../services/proxy/generated";
 import { Pedido } from "../services/proxy/generated";
@@ -39,6 +39,7 @@ const LibroCard: React.FC<LibroCardProps> = ({ libro }) => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [clienteAutenticado, setClienteAutenticado] = clienteContext;
+  const [imageUrl, setImageUrl] = useState("");
 
   const api = new DefaultApi();
 
@@ -96,37 +97,52 @@ const LibroCard: React.FC<LibroCardProps> = ({ libro }) => {
     });
   };
 
+  async function fetchImages() {
+    const blob = await api.getImageByBookId({ libroId: libro.id!, locale: "es" });
+    setImageUrl(URL.createObjectURL(blob));
+  }
+
+  useEffect(() => {
+    fetchImages()
+  }, [imageUrl]);
+
   return (
     <Card sx={{ maxWidth: 250, boxShadow: 3, borderRadius: 2 }}>
-      <CardMedia
-        component="img"
-        height="140"
-        alt={libro.nombre}
-        image={"../src/assets/imgs/no_image.webp"}
-      />
-      <CardContent>
-        <Typography
-          variant="h6"
-          component="div"
-          onClick={handleClickTitulo}
-          sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-        >
-          {libro.nombre}
-        </Typography>
-        <Typography variant="subtitle1" color="text.secondary">
-          ${libro.precio}
-        </Typography>
-        <ThemeProvider theme={theme}>
-          <Button
-            variant='contained'
-            color='ochre'
-            onClick={addToCart}
-          >
-            Añadir al carrito
-          </Button>
-        </ThemeProvider>
-      </CardContent>
-    </Card>
+  <CardMedia
+    component="img"
+    image={imageUrl || "../src/assets/imgs/no_image.webp"}
+    alt={libro.nombre}
+    sx={{
+      height: 300, 
+      width: '100%',
+      objectFit: 'contain',
+      borderRadius: 2, 
+    }}
+  />
+  <CardContent>
+    <Typography
+      variant="h6"
+      component="div"
+      onClick={handleClickTitulo}
+      sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+    >
+      {libro.nombre}
+    </Typography>
+    <Typography variant="subtitle1" color="text.secondary">
+      ${libro.precio}
+    </Typography>
+    <ThemeProvider theme={theme}>
+      <Button
+        variant="contained"
+        color="ochre"
+        onClick={addToCart}
+      >
+        Añadir al carrito
+      </Button>
+    </ThemeProvider>
+  </CardContent>
+</Card>
+
   );
 };
 
