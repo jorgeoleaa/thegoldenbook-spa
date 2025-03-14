@@ -184,6 +184,8 @@ function Login() {
                   const clienteAutenticado: ClienteDTO = await api.updateCliente(updateRequest);
 
                   sessionStorage.setItem("usuarioAutenticado", JSON.stringify(clienteAutenticado));
+
+                  navigate({to: "/"});
                 }
               }
               
