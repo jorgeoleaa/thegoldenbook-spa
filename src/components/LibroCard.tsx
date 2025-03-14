@@ -10,7 +10,7 @@ import { CartContext } from "../states/contexts";
 import { LineaPedido } from "../services/proxy/generated";
 import { Pedido } from "../services/proxy/generated";
 import { CreatePedidoRequest } from '../services/proxy/generated/apis/DefaultApi';
-import { HistoryState } from '@tanstack/react-router'; // Importa HistoryState
+import { HistoryState } from '@tanstack/react-router'; 
 
 interface LibroCardProps {
   libro: LibroDTO;

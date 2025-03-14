@@ -85,7 +85,11 @@ function Header() {
           </IconButton>
 
           {/* Carrito de compras */}
-          <IconButton onClick={() => navigate({ to: '/cart' })} sx={{ color: 'white', mr: 2 }}>
+          <IconButton onClick={
+            clienteInSession ? 
+            () => navigate({ to: '/cart' })
+            : () => navigate({to: '/login'})
+            } sx={{ color: 'white', mr: 2 }}>
             <CartBadge badgeContent={cart?.lineas?.length} color="primary">
               <ShoppingCartIcon />
             </CartBadge>

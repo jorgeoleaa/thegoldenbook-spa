@@ -83,6 +83,12 @@ export interface ClienteDTO {
     password?: string;
     /**
      * 
+     * @type {string}
+     * @memberof ClienteDTO
+     */
+    jwt?: string;
+    /**
+     * 
      * @type {Array<DireccionDTO>}
      * @memberof ClienteDTO
      */
@@ -115,6 +121,7 @@ export function ClienteDTOFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'email': json['email'] == null ? undefined : json['email'],
         'telefono': json['telefono'] == null ? undefined : json['telefono'],
         'password': json['password'] == null ? undefined : json['password'],
+        'jwt': json['jwt'] == null ? undefined : json['jwt'],
         'direcciones': json['direcciones'] == null ? undefined : ((json['direcciones'] as Array<any>).map(DireccionDTOFromJSON)),
     };
 }
@@ -139,6 +146,7 @@ export function ClienteDTOToJSONTyped(value?: ClienteDTO | null, ignoreDiscrimin
         'email': value['email'],
         'telefono': value['telefono'],
         'password': value['password'],
+        'jwt': value['jwt'],
         'direcciones': value['direcciones'] == null ? undefined : ((value['direcciones'] as Array<any>).map(DireccionDTOToJSON)),
     };
 }

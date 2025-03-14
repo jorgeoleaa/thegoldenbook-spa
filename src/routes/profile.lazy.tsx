@@ -2,12 +2,13 @@ import { createLazyFileRoute } from '@tanstack/react-router';
 import { Avatar, Box, Card, CardContent, Typography, Button, TextField } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete'
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useNavigate } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
 import { ClienteDTO } from '../services/proxy/generated';
 import { DefaultApi } from '../services/proxy/generated';
-import { UpdateClienteRequest } from '../services/proxy/generated/apis/DefaultApi';
+import { UpdateClienteRequest, DeleteClienteRequest } from '../services/proxy/generated/apis/DefaultApi';
 
 export const Route = createLazyFileRoute('/profile')({
   component: Profile,
@@ -51,7 +52,7 @@ function Profile() {
   const handleSaveClick = () => {
     if (editedUser) {
 
-      const updateClienteRequest : UpdateClienteRequest = {
+      const updateClienteRequest: UpdateClienteRequest = {
         clienteDTO: editedUser
       }
 
@@ -70,6 +71,17 @@ function Profile() {
     const { name, value } = e.target;
     setEditedUser((prev) => (prev ? { ...prev, [name]: value } : prev));
   };
+
+  const handleDeleteClick = async () => {
+
+    const request: DeleteClienteRequest = {
+      id: usuarioAutenticado.id!
+    }
+    await api.deleteCliente(request);
+    sessionStorage.removeItem("usuarioAutenticado");
+
+    navigate({to: "/"});
+  }
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#f4f6f8">
@@ -159,9 +171,20 @@ function Profile() {
                 </Button>
               </>
             ) : (
-              <Button variant="contained" startIcon={<EditIcon />} onClick={handleEditClick} sx={{ borderRadius: 2 }}>
-                Editar Perfil
-              </Button>
+              <>
+                <Button variant="contained" startIcon={<EditIcon />} onClick={handleEditClick} sx={{ borderRadius: 2 }}>
+                  Editar Perfil
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  onClick={handleDeleteClick}
+                  sx={{ borderRadius: 2 }}
+                >
+                  Eliminar cuenta
+                </Button>
+              </>
             )}
           </Box>
         </CardContent>

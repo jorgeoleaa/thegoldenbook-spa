@@ -12,7 +12,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
+import { Route as rootRoute } from './../routes/__root'
 
 // Create Virtual Routes
 
@@ -34,67 +34,71 @@ const SingupLazyRoute = SingupLazyImport.update({
   id: '/singup',
   path: '/singup',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/singup.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./../routes/singup.lazy').then((d) => d.Route))
 
 const PublicLazyRoute = PublicLazyImport.update({
   id: '/public',
   path: '/public',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/public.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./../routes/public.lazy').then((d) => d.Route))
 
 const ProfileLazyRoute = ProfileLazyImport.update({
   id: '/profile',
   path: '/profile',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/profile.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./../routes/profile.lazy').then((d) => d.Route))
 
 const PedidosLazyRoute = PedidosLazyImport.update({
   id: '/pedidos',
   path: '/pedidos',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/pedidos.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./../routes/pedidos.lazy').then((d) => d.Route))
 
 const LoginLazyRoute = LoginLazyImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./../routes/login.lazy').then((d) => d.Route))
 
 const LibroSearchLazyRoute = LibroSearchLazyImport.update({
   id: '/libroSearch',
   path: '/libroSearch',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/libroSearch.lazy').then((d) => d.Route))
+} as any).lazy(() =>
+  import('./../routes/libroSearch.lazy').then((d) => d.Route),
+)
 
 const LibroDetailLazyRoute = LibroDetailLazyImport.update({
   id: '/libroDetail',
   path: '/libroDetail',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/libroDetail.lazy').then((d) => d.Route))
+} as any).lazy(() =>
+  import('./../routes/libroDetail.lazy').then((d) => d.Route),
+)
 
 const ContactLazyRoute = ContactLazyImport.update({
   id: '/contact',
   path: '/contact',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/contact.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./../routes/contact.lazy').then((d) => d.Route))
 
 const CartLazyRoute = CartLazyImport.update({
   id: '/cart',
   path: '/cart',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/cart.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./../routes/cart.lazy').then((d) => d.Route))
 
 const AboutusLazyRoute = AboutusLazyImport.update({
   id: '/aboutus',
   path: '/aboutus',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/aboutus.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./../routes/aboutus.lazy').then((d) => d.Route))
 
 const IndexLazyRoute = IndexLazyImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./../routes/index.lazy').then((d) => d.Route))
 
 // Populate the FileRoutesByPath interface
 

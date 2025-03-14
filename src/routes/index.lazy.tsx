@@ -1,11 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button, Card, CardContent, Typography, Box, Container, CircularProgress } from "@mui/material";
 import { Star, ShoppingCart } from "@mui/icons-material";
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { DefaultApi, FindLibrosByCriteriaRequest, LibroDTO } from "../services/proxy/generated";
+import { LineaPedido, Pedido, UpdatePedidoRequest, CreatePedidoRequest, ClienteDTO } from "../services/proxy/generated";
+import { useNavigate } from "@tanstack/react-router";
+import { CartContext } from '../states/contexts';
+import { HistoryState } from "@tanstack/react-router";
 
 const api = new DefaultApi();
+const clienteAutenticado: ClienteDTO | null = JSON.parse(sessionStorage.getItem("usuarioAutenticado") || "null");
+
+type LibroNavigationState = HistoryState & {
+    libro: LibroDTO;
+  };
+  
 
 export const Route = createLazyFileRoute('/')({
     component: Index,
@@ -14,12 +24,13 @@ export const Route = createLazyFileRoute('/')({
 function Index() {
     const [libros, setLibros] = useState<LibroDTO[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+   
 
     useEffect(() => {
         const fetchLibros = async () => {
             try {
                 const criteria: FindLibrosByCriteriaRequest = {
-                    locale: "es", 
+                    locale: "es",
                 };
                 const response = await api.findLibrosByCriteria(criteria);
                 setLibros(response);
@@ -33,21 +44,21 @@ function Index() {
         fetchLibros();
     }, []);
 
-
     const getNovedades = () => {
         return [...libros]
-            .sort((a, b) => new Date(b.fechaPublicacion!).getTime() - new Date(a.fechaPublicacion!).getTime());
+            .sort((a, b) => new Date(b.fechaPublicacion!).getTime() - new Date(a.fechaPublicacion!).getTime())
+            .slice(0, 4);
     };
 
     const getRecomendados = () => {
         return [...libros]
             .sort((a, b) => (b.valoracionMedia || 0) - (a.valoracionMedia || 0))
-            .slice(0, 3); 
+            .slice(0, 4);
     };
 
     const getMasVendidos = () => {
         return [...libros]
-            .sort((a, b) => (b.unidades || 0) - (a.unidades || 0)) 
+            .sort((a, b) => (b.unidades || 0) - (a.unidades || 0))
             .slice(0, 4);
     };
 
@@ -59,7 +70,7 @@ function Index() {
                     position: 'relative',
                     width: '100%',
                     height: '400px',
-                    backgroundImage: 'url(../src/assets/imgs/banner.webp)',
+                    backgroundImage: `url(../src/assets/imgs/banner.webp)`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     display: 'flex',
@@ -155,8 +166,100 @@ function Index() {
     );
 }
 
-// Componente para las tarjetas de libros
 const BookCard = ({ libro }: { libro: LibroDTO }) => {
+    const [imageUrl, setImageUrl] = useState<string>("");
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const navigate = useNavigate();
+
+    const cartContext = useContext(CartContext);
+
+    if (!cartContext) {
+        throw new Error("CartContext debe usarse dentro de un CartProvider");
+    }
+
+    const [cart, setCart] = cartContext;
+
+    useEffect(() => {
+        let mounted = true;
+
+        async function fetchImages() {
+            try {
+                setIsLoading(true);
+                const blob = await api.getImageByBookId({ libroId: libro.id!, locale: "es" });
+                if (mounted) {
+                    const url = URL.createObjectURL(blob);
+                    setImageUrl(url);
+                }
+            } catch (error) {
+                console.error(`Error cargando imagen para libro ${libro.id}:`, error);
+                if (mounted) setImageUrl('../src/assets/imgs/no_image.webp');
+            } finally {
+                if (mounted) setIsLoading(false);
+            }
+        }
+
+        fetchImages();
+
+        return () => {
+            mounted = false;
+            if (imageUrl) URL.revokeObjectURL(imageUrl);
+        };
+    }, [libro.id]);
+
+    async function addToCart() {
+        if (cart) {
+            const linea: LineaPedido = {
+                precio: libro.precio,
+                libroId: libro.id,
+                unidades: 1,
+                nombreLibro: libro.nombre,
+            };
+
+            cart.lineas?.push(linea);
+
+            const updatePedidoRequest: UpdatePedidoRequest = {
+                pedido: cart,
+            };
+
+            const pedidoActualizado = await api.updatePedido(updatePedidoRequest);
+            setCart(pedidoActualizado);
+        } else {
+            const linea: LineaPedido = {
+                precio: libro.precio,
+                libroId: libro.id,
+                unidades: 1,
+                nombreLibro: libro.nombre,
+            };
+
+            const lineas: LineaPedido[] = [linea];
+
+            const pedido: Pedido = {
+                clienteId: clienteAutenticado?.id,
+                tipoEstadoPedidoId: 7,
+                lineas: lineas,
+                fechaRealizacion: new Date(),
+            };
+
+            const createPedidoRequest: CreatePedidoRequest = {
+                pedido: pedido,
+            };
+
+            const carritoCreado = await api.createPedido(createPedidoRequest);
+            setCart(carritoCreado);
+        }
+
+        navigate({ to: "/cart" });
+    }
+
+    const handleClickTitulo = () => {
+        console.log("Navigating with state: ", {libro});
+        navigate({
+            to: '/libroDetail',
+            params: { id: libro.id?.toString()},
+            state: { libro } as LibroNavigationState,
+        })
+    }
+
     return (
         <Card
             sx={{
@@ -169,14 +272,26 @@ const BookCard = ({ libro }: { libro: LibroDTO }) => {
                 '&:hover': { boxShadow: 6 },
             }}
         >
-            <Box
-                component="img"
-                src={'https://via.placeholder.com/250x350'} // Usa una imagen de placeholder si no hay imagen
-                alt={libro.nombre}
-                sx={{ width: '100%', height: 250, objectFit: 'cover', borderRadius: 2 }}
-            />
+            {isLoading ? (
+                <Box sx={{ width: '100%', height: 250, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <CircularProgress />
+                </Box>
+            ) : (
+                <Box
+                    component="img"
+                    src={imageUrl || "../src/assets/imgs/no_image.webp"}
+                    alt={libro.nombre}
+                    sx={{ width: '100%', height: 250, objectFit: 'contain', borderRadius: 2 }}
+                    onError={() => setImageUrl('/default-book-cover.jpg')}
+                />
+            )}
             <CardContent sx={{ mt: 2 }}>
-                <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold' }}>
+                <Typography 
+                variant="h6" 
+                component="h3" 
+                onClick={handleClickTitulo}
+                sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' }, fontWeight: 'bold'}}
+                >
                     {libro.nombre}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -190,8 +305,7 @@ const BookCard = ({ libro }: { libro: LibroDTO }) => {
                         variant="contained"
                         color="primary"
                         sx={{ p: 1, display: 'flex', alignItems: 'center' }}
-                        component={Link}
-                        to={`/libroDetail`}
+                        onClick={addToCart}
                     >
                         <ShoppingCart sx={{ width: 16, height: 16, mr: 1 }} /> Comprar
                     </Button>
@@ -200,3 +314,5 @@ const BookCard = ({ libro }: { libro: LibroDTO }) => {
         </Card>
     );
 };
+
+export default Index;

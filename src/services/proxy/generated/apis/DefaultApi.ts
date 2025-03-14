@@ -72,6 +72,10 @@ export interface DeleteValoracionRequest {
     clienteId?: number;
 }
 
+export interface FindClienteByEmailRequest {
+    email?: string;
+}
+
 export interface FindEdadesByLocaleRequest {
     locale?: string;
 }
@@ -337,6 +341,38 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async deleteValoracion(requestParameters: DeleteValoracionRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.deleteValoracionRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Búsqueda de un cliente a partir del email introducido.
+     * Búsqueda de un cliente a partir de su email.
+     */
+    async findClienteByEmailRaw(requestParameters: FindClienteByEmailRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ClienteDTO>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['email'] != null) {
+            queryParameters['email'] = requestParameters['email'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/cliente/find`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ClienteDTOFromJSON(jsonValue));
+    }
+
+    /**
+     * Búsqueda de un cliente a partir del email introducido.
+     * Búsqueda de un cliente a partir de su email.
+     */
+    async findClienteByEmail(requestParameters: FindClienteByEmailRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ClienteDTO> {
+        const response = await this.findClienteByEmailRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
