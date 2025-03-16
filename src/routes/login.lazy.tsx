@@ -12,7 +12,7 @@ import {
   Alert,
 } from "@mui/material";
 import { createLazyFileRoute, useNavigate } from "@tanstack/react-router";
-import { AutenticarClienteRequest, DefaultApi, FindPedidosByCriteriaRequest, UpdateClienteRequest } from "../services/proxy/generated/apis/DefaultApi";
+import { AutenticarClienteRequest, DefaultApi, FindPedidosByCriteriaRequest, RegisterClienteRequest, UpdateClienteRequest } from '../services/proxy/generated/apis/DefaultApi';
 import { ClienteCredentials } from "../services/proxy/generated/models";
 import { CartContext, ClienteContext } from "../states/contexts";
 import { GoogleLogin } from "@react-oauth/google";
@@ -23,6 +23,7 @@ import { FindClienteByEmailRequest } from "../services/proxy/generated/apis/Defa
 export const Route = createLazyFileRoute("/login")({
   component: Login,
 });
+
 
 function Login() {
   const api = new DefaultApi();
@@ -98,6 +99,7 @@ function Login() {
 
   interface MyJwtPayload extends JwtPayload {
     email: string
+    name: string
   }
 
   return (
@@ -164,37 +166,121 @@ function Login() {
           </Button>
           <GoogleLogin
             onSuccess={async (credentialResponse) => {
-              const decoded = jwtDecode<MyJwtPayload>(credentialResponse.credential!);
-
-              const request: FindClienteByEmailRequest = {
-                email: decoded.email
-              }
-
-              const cliente: ClienteDTO = await api.findClienteByEmail(request);
-
-              if(cliente){
-                if(!cliente.jwt){
-
-                  cliente.jwt = credentialResponse.credential;
-
-                  const updateRequest : UpdateClienteRequest = {
-                    clienteDTO: cliente
-                  } 
-
-                  const clienteAutenticado: ClienteDTO = await api.updateCliente(updateRequest);
-
-                  sessionStorage.setItem("usuarioAutenticado", JSON.stringify(clienteAutenticado));
-
-                  navigate({to: "/"});
+              try {
+                const decoded = jwtDecode<MyJwtPayload>(credentialResponse.credential!);
+                console.log("Decoded JWT:", decoded);
+                
+                const request: FindClienteByEmailRequest = {
+                  email: decoded.email
+                };
+                
+                try {
+                  const cliente = await api.findClienteByEmail(request);
+                  console.log("API response:", cliente);
+                  
+                  // Si el cliente existe
+                  if (cliente !== null) {
+                    console.log("Cliente existe:", cliente);
+                    
+                    if (!cliente.jwt) {
+                      cliente.jwt = credentialResponse.credential;
+                      
+                      const updateRequest: UpdateClienteRequest = {
+                        clienteDTO: cliente
+                      };
+                      
+                      const clienteAutenticado = await api.updateCliente(updateRequest);
+                      setClienteAutenticado(clienteAutenticado);
+                    } else {
+                      setClienteAutenticado(cliente);
+                    }
+                    
+                    navigate({ to: "/" });
+                  } else {
+                    // Si el cliente no existe, registrarlo
+                    console.log("Cliente no existe. Creando nuevo cliente.");
+                    
+                    const nombrePartes = decoded.name.split(" ");
+                    const apellido1 = nombrePartes.length > 1 ? nombrePartes[1] : "";
+                    const nombre = nombrePartes.length > 0 ? nombrePartes[0] : "";
+                    
+                    console.log(nombre + " " + apellido1);
+                    
+                    const clienteRegistrar: ClienteDTO = {
+                      email: decoded.email,
+                      password: undefined,
+                      apellido1: apellido1,
+                      apellido2: undefined,
+                      jwt: credentialResponse.credential,
+                      nickname: undefined,
+                      telefono: undefined,
+                      dniNie: undefined,
+                      direcciones: undefined,
+                      nombre: nombre,
+                    };
+                    
+                    const request: RegisterClienteRequest = {
+                      clienteDTO: clienteRegistrar
+                    };
+                    
+                    const clienteRegistrado = await api.registerCliente(request);
+                    console.log("Cliente registrado:", clienteRegistrado);
+                    
+                    if (clienteRegistrado) {
+                      setClienteAutenticado(clienteRegistrado);
+                      sessionStorage.setItem("usuarioAutenticado", JSON.stringify(clienteRegistrado));
+                      navigate({ to: "/" });
+                    }
+                  }
+                } catch (error) {
+                  console.error("Error al buscar el cliente:", error);
+                  
+                  // Asumimos que el cliente no existe y procedemos a registrarlo
+                  const nombrePartes = decoded.name.split(" ");
+                  const apellido1 = nombrePartes.length > 1 ? nombrePartes[1] : "";
+                  const nombre = nombrePartes.length > 0 ? nombrePartes[0] : "";
+                  
+                  console.log(nombre + " " + apellido1);
+                  
+                  const clienteRegistrar: ClienteDTO = {
+                    email: decoded.email,
+                    password: undefined,
+                    apellido1: apellido1,
+                    apellido2: undefined,
+                    jwt: credentialResponse.credential,
+                    nickname: undefined,
+                    telefono: undefined,
+                    dniNie: undefined,
+                    direcciones: undefined,
+                    nombre: nombre,
+                  };
+                  
+                  const request: RegisterClienteRequest = {
+                    clienteDTO: clienteRegistrar
+                  };
+                  
+                  try {
+                    const clienteRegistrado = await api.registerCliente(request);
+                    console.log("Cliente registrado:", clienteRegistrado);
+                    
+                    if (clienteRegistrado) {
+                      setClienteAutenticado(clienteRegistrado);
+                      sessionStorage.setItem("usuarioAutenticado", JSON.stringify(clienteRegistrado));
+                      navigate({ to: "/" });
+                    }
+                  } catch (registroError) {
+                    console.error("Error al registrar el cliente:", registroError);
+                    setError("Error al registrar el cliente con Google");
+                  }
                 }
+              } catch (error) {
+                console.error("Error en la autenticación con Google:", error);
+                setError("Error en la autenticación con Google");
               }
-              
-
-              console.log("Usuario autenticado:", decoded.email);
-
             }}
             onError={() => {
               console.log("Error en la autenticación");
+              setError("Error en la autenticación con Google");
             }}
           />
         </form>

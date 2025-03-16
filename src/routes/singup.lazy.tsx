@@ -63,7 +63,7 @@ function Signup() {
         password: password,
         telefono: telefono,
         dniNie: dni,
-        jwt: jwt
+        jwt: undefined
       };
 
       const request = { clienteDTO: nuevoCliente };

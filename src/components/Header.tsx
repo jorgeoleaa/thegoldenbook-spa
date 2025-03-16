@@ -27,7 +27,6 @@ const CartBadge = styled(Badge)`
 `;
 
 function Header() {
-  const clienteInSession = JSON.parse(sessionStorage.getItem('usuarioAutenticado') || 'null');
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const clienteContext = useContext(ClienteContext);
   const cartContext = useContext(CartContext);
@@ -38,9 +37,11 @@ function Header() {
   }
 
   const [cart, setCart] = cartContext;
+  const [clienteAutenticado, setClienteAutenticado] = clienteContext; // Ahora el estado viene del contexto
 
   function salir() {
     sessionStorage.removeItem("usuarioAutenticado");
+    setClienteAutenticado(null); // Asegura que se refleje el cambio en toda la app
     setCart({});
     navigate({ to: '/' });
   }
@@ -86,17 +87,17 @@ function Header() {
 
           {/* Carrito de compras */}
           <IconButton onClick={
-            clienteInSession ? 
+            clienteAutenticado ? 
             () => navigate({ to: '/cart' })
-            : () => navigate({to: '/login'})
-            } sx={{ color: 'white', mr: 2 }}>
+            : () => navigate({ to: '/login' })
+          } sx={{ color: 'white', mr: 2 }}>
             <CartBadge badgeContent={cart?.lineas?.length} color="primary">
               <ShoppingCartIcon />
             </CartBadge>
           </IconButton>
 
           {/* Menú de usuario */}
-          {clienteInSession ? (
+          {clienteAutenticado ? (
             <Tooltip title="Configuración">
               <IconButton onClick={(e) => setAnchorElUser(e.currentTarget)} sx={{ p: 0 }}>
                 <Avatar />
@@ -117,9 +118,9 @@ function Header() {
                 if (setting === 'Salir') {
                   salir(); 
                 } else if (setting === 'Mi perfil') {
-                  navigate({to: '/profile'}); 
+                  navigate({ to: '/profile' }); 
                 } else if (setting === 'Mis pedidos') {
-                  navigate({to: '/pedidos'});
+                  navigate({ to: '/pedidos' });
                 }
               }}>
                 {setting === 'Mi perfil' || setting === 'Mis pedidos' ? (
