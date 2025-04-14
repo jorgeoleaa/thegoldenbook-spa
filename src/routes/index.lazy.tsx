@@ -70,7 +70,7 @@ function Index() {
                     position: 'relative',
                     width: '100%',
                     height: '400px',
-                    backgroundImage: `url(../src/assets/imgs/banner.webp)`,
+                    backgroundImage: `url(imgs/banner.webp)`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     display: 'flex',

@@ -104,7 +104,7 @@ const LibroCard: React.FC<LibroCardProps> = ({ libro }) => {
 
   useEffect(() => {
     fetchImages()
-  }, [imageUrl]);
+  }, []);
 
   return (
     <Card sx={{ maxWidth: 250, boxShadow: 3, borderRadius: 2 }}>

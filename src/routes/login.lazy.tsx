@@ -107,7 +107,7 @@ function Login() {
       <Paper elevation={3} sx={{ p: 4 }}>
         <Box sx={{ textAlign: "center", mb: 2 }}>
           <img
-            src="../src/assets/imgs/logo.jpg"
+            src="imgs/logo.jpg"
             alt="logo thegoldenbook"
             style={{ height: 60 }}
           />
@@ -169,43 +169,63 @@ function Login() {
               try {
                 const decoded = jwtDecode<MyJwtPayload>(credentialResponse.credential!);
                 console.log("Decoded JWT:", decoded);
-                
+
                 const request: FindClienteByEmailRequest = {
                   email: decoded.email
                 };
-                
+
                 try {
                   const cliente = await api.findClienteByEmail(request);
                   console.log("API response:", cliente);
-                  
+
                   // Si el cliente existe
                   if (cliente !== null) {
                     console.log("Cliente existe:", cliente);
-                    
+
                     if (!cliente.jwt) {
+                      console.log("Cliente sin jwt");
                       cliente.jwt = credentialResponse.credential;
-                      
+
                       const updateRequest: UpdateClienteRequest = {
                         clienteDTO: cliente
                       };
-                      
+
                       const clienteAutenticado = await api.updateCliente(updateRequest);
                       setClienteAutenticado(clienteAutenticado);
+                      sessionStorage.setItem('usuarioAutenticado', JSON.stringify(clienteAutenticado));
+
+                      const criteria: FindPedidosByCriteriaRequest = {
+                        clienteId: clienteAutenticado.id,
+                        tipoEstadoPedidoId: 7,
+                      };
+                      
+                      const carritoClienteAutenticado = await api.findPedidosByCriteria(criteria);
+                      setCart(carritoClienteAutenticado[0]);
                     } else {
                       setClienteAutenticado(cliente);
+                      console.log("Añadiendo en el sessionStorage "+cliente);
+                      sessionStorage.setItem('usuarioAutenticado', JSON.stringify(cliente));
+
+                      const criteria: FindPedidosByCriteriaRequest = {
+                        clienteId: cliente.id,
+                        tipoEstadoPedidoId: 7,
+                      };
+
+                      const carritoClienteAutenticado = await api.findPedidosByCriteria(criteria);
+                      setCart(carritoClienteAutenticado[0]);
                     }
-                    
+
                     navigate({ to: "/" });
                   } else {
                     // Si el cliente no existe, registrarlo
                     console.log("Cliente no existe. Creando nuevo cliente.");
-                    
+
                     const nombrePartes = decoded.name.split(" ");
                     const apellido1 = nombrePartes.length > 1 ? nombrePartes[1] : "";
                     const nombre = nombrePartes.length > 0 ? nombrePartes[0] : "";
-                    
+
                     console.log(nombre + " " + apellido1);
-                    
+
                     const clienteRegistrar: ClienteDTO = {
                       email: decoded.email,
                       password: undefined,
@@ -218,14 +238,14 @@ function Login() {
                       direcciones: undefined,
                       nombre: nombre,
                     };
-                    
+
                     const request: RegisterClienteRequest = {
                       clienteDTO: clienteRegistrar
                     };
-                    
+
                     const clienteRegistrado = await api.registerCliente(request);
                     console.log("Cliente registrado:", clienteRegistrado);
-                    
+
                     if (clienteRegistrado) {
                       setClienteAutenticado(clienteRegistrado);
                       sessionStorage.setItem("usuarioAutenticado", JSON.stringify(clienteRegistrado));
@@ -234,14 +254,14 @@ function Login() {
                   }
                 } catch (error) {
                   console.error("Error al buscar el cliente:", error);
-                  
+
                   // Asumimos que el cliente no existe y procedemos a registrarlo
                   const nombrePartes = decoded.name.split(" ");
                   const apellido1 = nombrePartes.length > 1 ? nombrePartes[1] : "";
                   const nombre = nombrePartes.length > 0 ? nombrePartes[0] : "";
-                  
+
                   console.log(nombre + " " + apellido1);
-                  
+
                   const clienteRegistrar: ClienteDTO = {
                     email: decoded.email,
                     password: undefined,
@@ -254,15 +274,15 @@ function Login() {
                     direcciones: undefined,
                     nombre: nombre,
                   };
-                  
+
                   const request: RegisterClienteRequest = {
                     clienteDTO: clienteRegistrar
                   };
-                  
+
                   try {
                     const clienteRegistrado = await api.registerCliente(request);
                     console.log("Cliente registrado:", clienteRegistrado);
-                    
+
                     if (clienteRegistrado) {
                       setClienteAutenticado(clienteRegistrado);
                       sessionStorage.setItem("usuarioAutenticado", JSON.stringify(clienteRegistrado));

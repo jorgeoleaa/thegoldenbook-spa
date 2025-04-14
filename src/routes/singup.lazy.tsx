@@ -82,7 +82,7 @@ function Signup() {
     <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
       <Paper elevation={3} sx={{ p: 4 }}>
         <Box sx={{ textAlign: "center", mb: 3 }}>
-          <img src="../src/assets/imgs/logo.jpg" alt="logo thegoldenbook" style={{ height: 60 }} />
+          <img src="imgs/logo.jpg" alt="logo thegoldenbook" style={{ height: 60 }} />
           <Typography variant="h4" gutterBottom>
             The Golden Book
           </Typography>

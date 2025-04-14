@@ -3,7 +3,10 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import { StrictMode } from "react";
 
-const router = createRouter({ routeTree });
+const router = createRouter({ 
+  routeTree: routeTree, 
+  basepath: '/thegoldenbook-spa'
+});
 
 const App: React.FC = () => {
   return (

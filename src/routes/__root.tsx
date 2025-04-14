@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, createRootRoute } from '@tanstack/react-router';
 import Header from '../components/Header';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
@@ -10,21 +10,33 @@ import Footer from '../components/Footer';
 
 export const Route = createRootRoute({
   component: () => {
-
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const clienteHook = useState<ClienteDTO | null>(null);
-
+    const [clienteAutenticado, setClienteAutenticado] = useState<ClienteDTO | null>(null);
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const cartHook = useState<Pedido | null>(null);
+    const [cart, setCart] = useState<Pedido | null>(null);
+    
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
+      const savedUser = sessionStorage.getItem('usuarioAutenticado');
+      if (savedUser) {
+        try {
+          const parsedUser = JSON.parse(savedUser);
+          setClienteAutenticado(parsedUser);
+        } catch (error) {
+          console.error("Error al parsear el usuario del sessionStorage:", error);
+          sessionStorage.removeItem('usuarioAutenticado');
+        }
+      }
+    }, []);
 
     return (
       <>
-        <CartContext.Provider value={cartHook}>
-          <ClienteContext.Provider value={clienteHook}>
+        <CartContext.Provider value={[cart, setCart]}>
+          <ClienteContext.Provider value={[clienteAutenticado, setClienteAutenticado]}>
             <div>
               <Header />
               <Outlet />
-              <Footer/>
+              <Footer />
             </div>
           </ClienteContext.Provider>
         </CartContext.Provider>

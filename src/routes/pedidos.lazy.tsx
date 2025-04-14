@@ -101,7 +101,7 @@ function MisPedidos() {
                                 <DatePicker
                                     label="Fecha desde"
                                     value={fechaDesde}
-                                    onChange={(nuevaFecha) => setFechaDesde(nuevaFecha)} // Usar directamente el objeto dayjs
+                                    onChange={(nuevaFecha) => setFechaDesde(nuevaFecha)} 
                                     sx={{ width: '100%' }}
                                 />
                             </Box>
@@ -109,8 +109,8 @@ function MisPedidos() {
                                 <DatePicker
                                     label="Fecha hasta"
                                     value={fechaHasta}
-                                    onChange={(nuevaFecha) => setFechaHasta(nuevaFecha)} // Usar directamente el objeto dayjs
-                                    sx={{ width: '100%' }}
+                                    onChange={(nuevaFecha) => setFechaHasta(nuevaFecha)} 
+                                    sx={{ width: '100%' }} 
                                 />
                             </Box>
                             <Box sx={{ mb: 3 }}>

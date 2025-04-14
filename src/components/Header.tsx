@@ -50,7 +50,7 @@ function Header() {
     <AppBar position="static" sx={{ backgroundColor: '#1E1E1E' }}>
       <Container maxWidth="xl">
         <Toolbar>
-          <img src="../src/assets/imgs/logo-removebg-preview.png" alt="Logo" style={{ height: 50, marginRight: 16 }} />
+          <img src="imgs/logo-removebg-preview.png" alt="Logo" style={{ height: 50, marginRight: 16 }} />
           <Typography
             variant="h6"
             component={Link}
