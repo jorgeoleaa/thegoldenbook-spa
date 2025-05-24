@@ -3,28 +3,28 @@ import { Outlet, createRootRoute } from '@tanstack/react-router';
 import Header from '../components/Header';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { ClienteContext } from '../states/contexts';
-import { ClienteDTO } from '../services/proxy/generated/models/ClienteDTO';
-import { Pedido } from '../services/proxy/generated';
+import { User } from '../services/proxy/generated/models/User';
+import { Order } from '../services/proxy/generated';
 import { CartContext } from '../states/contexts';
 import Footer from '../components/Footer';
 
 export const Route = createRootRoute({
   component: () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [clienteAutenticado, setClienteAutenticado] = useState<ClienteDTO | null>(null);
+    const [authenticatedUser, setAuthenticatedUser] = useState<User | null>(null);
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [cart, setCart] = useState<Pedido | null>(null);
+    const [cart, setCart] = useState<Order | null>(null);
     
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
-      const savedUser = sessionStorage.getItem('usuarioAutenticado');
+      const savedUser = sessionStorage.getItem('authenticatedUser');
       if (savedUser) {
         try {
           const parsedUser = JSON.parse(savedUser);
-          setClienteAutenticado(parsedUser);
+          setAuthenticatedUser(parsedUser);
         } catch (error) {
-          console.error("Error al parsear el usuario del sessionStorage:", error);
-          sessionStorage.removeItem('usuarioAutenticado');
+          console.error("Error parsing user from sessionStorage", error);
+          sessionStorage.removeItem('authenticatedUser');
         }
       }
     }, []);
@@ -32,7 +32,7 @@ export const Route = createRootRoute({
     return (
       <>
         <CartContext.Provider value={[cart, setCart]}>
-          <ClienteContext.Provider value={[clienteAutenticado, setClienteAutenticado]}>
+          <ClienteContext.Provider value={[authenticatedUser, setAuthenticatedUser]}>
             <div>
               <Header />
               <Outlet />
