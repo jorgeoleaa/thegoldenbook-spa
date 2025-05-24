@@ -22,7 +22,7 @@ interface RatingDialogProps {
   onSave: (ratingData: RatingData) => void;
 }
 
-const RatingDialog: React.FC<RatingDialogProps> = ({ open, onClose, onSave }) => {
+const ReviewDialog: React.FC<RatingDialogProps> = ({ open, onClose, onSave }) => {
   const [rating, setRating] = useState<number>(0);
   const [subject, setSubject] = useState<string>('');
   const [body, setBody] = useState<string>('');
@@ -34,20 +34,20 @@ const RatingDialog: React.FC<RatingDialogProps> = ({ open, onClose, onSave }) =>
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Deja tu valoración</DialogTitle>
+      <DialogTitle>Leave your review</DialogTitle>
       <DialogContent>
-        <Typography component="legend">Calificación</Typography>
+        <Typography component="legend">Rating</Typography>
         <Rating
           name="simple-controlled"
           value={rating}
           onChange={(event, newValue) => {
-            setRating(newValue || 0); // Asegúrate de manejar el caso en que newValue sea null
+            setRating(newValue || 0);
           }}
         />
         <TextField
           autoFocus
           margin="dense"
-          label="Asunto"
+          label="Subject"
           type="text"
           fullWidth
           variant="standard"
@@ -56,7 +56,7 @@ const RatingDialog: React.FC<RatingDialogProps> = ({ open, onClose, onSave }) =>
         />
         <TextField
           margin="dense"
-          label="Cuerpo"
+          label="Body"
           type="text"
           fullWidth
           variant="standard"
@@ -67,11 +67,11 @@ const RatingDialog: React.FC<RatingDialogProps> = ({ open, onClose, onSave }) =>
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancelar</Button>
-        <Button onClick={handleSave}>Guardar</Button>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleSave}>Save</Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default RatingDialog;
+export default ReviewDialog;
