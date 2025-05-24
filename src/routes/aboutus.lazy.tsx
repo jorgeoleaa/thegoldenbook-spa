@@ -10,20 +10,18 @@ function AboutUs() {
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
       <Paper elevation={3} sx={{ p: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Sobre Nosotros
+          About us
         </Typography>
         <Typography variant="body1" paragraph>
-          Bienvenido a The Golden Book. Somos una librería dedicada a ofrecer una amplia selección de libros para todos los gustos y edades. Nuestra misión es fomentar la lectura y proporcionar un espacio donde los amantes de los libros puedan encontrar sus próximas lecturas favoritas.
+          Welcome to The Golden Book. We are a bookstore dedicated to offering a wide selection of books for all tastes and ages. Our mission is to promote reading and provide a space where book lovers can find their next favorite reads.
         </Typography>
         <Typography variant="body1" paragraph>
-          En The Golden Book, creemos que los libros tienen el poder de cambiar vidas. Por eso, nos esforzamos por ofrecer una experiencia de compra única y personalizada, con un equipo de expertos siempre dispuesto a ayudarte a encontrar el libro perfecto.
+          At The Golden Book, we believe that books have the power to change lives. That’s why we strive to offer a unique and personalized shopping experience, with a team of experts always ready to help you find the perfect book.
         </Typography>
         <Typography variant="body1" paragraph>
-          Nuestra librería cuenta con una gran variedad de géneros, desde ficción y no ficción hasta libros infantiles y juveniles. También ofrecemos una selección de libros en varios idiomas para satisfacer las necesidades de nuestra diversa comunidad de lectores.
-        </Typography>
+          Our bookstore features a wide variety of genres, from fiction and non-fiction to children's and young adult books. We also offer a selection of books in multiple languages to meet the needs of our diverse community of readers.          </Typography>
         <Typography variant="body1" paragraph>
-          Gracias por visitarnos y esperamos que disfrutes de tu experiencia en The Golden Book. Si tienes alguna pregunta o necesitas ayuda, no dudes en ponerte en contacto con nosotros.
-        </Typography>
+          Thank you for visiting us, and we hope you enjoy your experience at The Golden Book. If you have any questions or need assistance, feel free to reach out to us.        </Typography>
       </Paper>
     </Container>
   );
