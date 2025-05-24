@@ -16,7 +16,7 @@ import { LibroDTO, Autor, Tematica, ValoracionDTO, FindValoracionByLibroRequest,
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { DefaultApi } from '../services/proxy/generated';
 import { HistoryState } from '@tanstack/react-router';
-import RatingDialog from '../components/RatingDialog';
+import ReviewDialog from '../components/ReviewDialog';
 import { ClienteDTO } from '../services/proxy/generated';
 
 export const Route = createLazyFileRoute('/libroDetail')({
@@ -291,7 +291,7 @@ function LibroDetalle() {
             </Card>
 
             {/* Diálogo para añadir valoración */}
-            <RatingDialog
+            <ReviewDialog
                 open={dialogOpen}
                 onClose={() => setDialogOpen(false)}
                 onSave={handleSaveRating}

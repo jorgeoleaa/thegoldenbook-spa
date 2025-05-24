@@ -19,7 +19,7 @@ import { LibroDTO, Idioma, ClasificacionEdad } from '../services/proxy/generated
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import LibroCard from '../components/LibroCard';
+import LibroCard from '../components/BookCard';
 import theme from '../themes/themes';
 import { createLazyFileRoute } from '@tanstack/react-router';
 
