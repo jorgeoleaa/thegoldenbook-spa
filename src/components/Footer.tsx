@@ -5,60 +5,60 @@ const Footer = () => {
   return (
     <Box
       sx={{
-        backgroundColor: 'black', // Cambiado a negro
-        color: 'white', // Texto en blanco para contrastar con el fondo negro
+        backgroundColor: 'black',
+        color: 'white',
         py: 4,
-        mt: 'auto', // Para que el footer se quede abajo si usas un layout flex
+        mt: 'auto',
       }}
     >
       <Container maxWidth="lg">
         <Grid container spacing={4}>
-          {/* Sección de descripción */}
+          {/* Description section */}
           <Grid item xs={12} sm={6} md={3}>
             <Typography variant="h6" gutterBottom>
               The Golden Book
             </Typography>
             <Typography variant="body2">
-              Tu tienda de libros favorita. Encuentra los mejores títulos y autores.
+              Your favorite bookstore. Find the best titles and authors.
             </Typography>
           </Grid>
 
-          {/* Sección de enlaces rápidos */}
+          {/* Quick links section */}
           <Grid item xs={12} sm={6} md={3}>
             <Typography variant="h6" gutterBottom>
-              Enlaces Rápidos
+              Quick Links
             </Typography>
             <Link href="/" color="inherit" display="block" underline="hover">
-              Inicio
+              Home
             </Link>
-            <Link href="/libros" color="inherit" display="block" underline="hover">
-              Libros
+            <Link href="/books" color="inherit" display="block" underline="hover">
+              Books
             </Link>
-            <Link href="/ofertas" color="inherit" display="block" underline="hover">
-              Ofertas
+            <Link href="/deals" color="inherit" display="block" underline="hover">
+              Deals
             </Link>
-            <Link href="/contacto" color="inherit" display="block" underline="hover">
-              Contacto
+            <Link href="/contact" color="inherit" display="block" underline="hover">
+              Contact
             </Link>
           </Grid>
 
-          {/* Sección de contacto */}
+          {/* Contact section */}
           <Grid item xs={12} sm={6} md={3}>
             <Typography variant="h6" gutterBottom>
-              Contacto
+              Contact
             </Typography>
             <Typography variant="body2" gutterBottom>
               Email: info@thegoldenbook.com
             </Typography>
             <Typography variant="body2" gutterBottom>
-              Teléfono: +123 456 789
+              Phone number: +123 456 789
             </Typography>
           </Grid>
 
-          {/* Sección de redes sociales */}
+          {/* Social Media section */}
           <Grid item xs={12} sm={6} md={3}>
             <Typography variant="h6" gutterBottom>
-              Síguenos
+              Follow us
             </Typography>
             <Link
               href="https://facebook.com/thegoldenbook"
@@ -93,7 +93,7 @@ const Footer = () => {
           </Grid>
         </Grid>
 
-        {/* Pie de página */}
+        {/* Footer */}
         <Box
           sx={{
             borderTop: '1px solid',
@@ -104,7 +104,7 @@ const Footer = () => {
           }}
         >
           <Typography variant="body2">
-            &copy; {new Date().getFullYear()} The Golden Book. Todos los derechos reservados.
+            &copy; {new Date().getFullYear()} The Golden Book. All rights reserved.
           </Typography>
         </Box>
       </Container>
