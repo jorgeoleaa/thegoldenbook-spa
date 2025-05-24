@@ -14,7 +14,7 @@ import {
     Typography,
     Paper,
 } from '@mui/material';
-import { DefaultApi, FindBooksByCriteriaRequest, FindLanguagesByLocaleRequest, FindReadingAgeGroupsByLocaleRequest, LiteraryGenre, FindLiteraryGenresByLocaleRequest} from '../services/proxy/generated';
+import { DefaultApi, FindBooksByCriteriaRequest, FindLanguagesByLocaleRequest, FindReadingAgeGroupsByLocaleRequest, FindLiteraryGenresByLocaleRequest} from '../services/proxy/generated';
 import { Book, Language, ReadingAgeGroup } from '../services/proxy/generated/models';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
