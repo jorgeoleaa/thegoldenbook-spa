@@ -22,7 +22,7 @@ const ProfileLazyImport = createFileRoute('/profile')()
 const PedidosLazyImport = createFileRoute('/pedidos')()
 const LoginLazyImport = createFileRoute('/login')()
 const LibroSearchLazyImport = createFileRoute('/libroSearch')()
-const LibroDetailLazyImport = createFileRoute('/libroDetail')()
+const LibroDetailLazyImport = createFileRoute('/bookDetail')()
 const ContactLazyImport = createFileRoute('/contact')()
 const CartLazyImport = createFileRoute('/cart')()
 const AboutusLazyImport = createFileRoute('/aboutus')()
@@ -67,10 +67,10 @@ const LibroSearchLazyRoute = LibroSearchLazyImport.update({
 } as any).lazy(() => import('./routes/libroSearch.lazy').then((d) => d.Route))
 
 const LibroDetailLazyRoute = LibroDetailLazyImport.update({
-  id: '/libroDetail',
-  path: '/libroDetail',
+  id: '/bookDetail',
+  path: '/bookDetail',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/libroDetail.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./routes/bookDetail.lazy').then((d) => d.Route))
 
 const ContactLazyRoute = ContactLazyImport.update({
   id: '/contact',
@@ -128,10 +128,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactLazyImport
       parentRoute: typeof rootRoute
     }
-    '/libroDetail': {
-      id: '/libroDetail'
-      path: '/libroDetail'
-      fullPath: '/libroDetail'
+    '/bookDetail': {
+      id: '/bookDetail'
+      path: '/bookDetail'
+      fullPath: '/bookDetail'
       preLoaderRoute: typeof LibroDetailLazyImport
       parentRoute: typeof rootRoute
     }
@@ -187,7 +187,7 @@ export interface FileRoutesByFullPath {
   '/aboutus': typeof AboutusLazyRoute
   '/cart': typeof CartLazyRoute
   '/contact': typeof ContactLazyRoute
-  '/libroDetail': typeof LibroDetailLazyRoute
+  '/bookDetail': typeof BookDetailLazyRoute
   '/libroSearch': typeof LibroSearchLazyRoute
   '/login': typeof LoginLazyRoute
   '/pedidos': typeof PedidosLazyRoute
@@ -201,7 +201,7 @@ export interface FileRoutesByTo {
   '/aboutus': typeof AboutusLazyRoute
   '/cart': typeof CartLazyRoute
   '/contact': typeof ContactLazyRoute
-  '/libroDetail': typeof LibroDetailLazyRoute
+  '/bookDetail': typeof BookDetailLazyRoute
   '/libroSearch': typeof LibroSearchLazyRoute
   '/login': typeof LoginLazyRoute
   '/pedidos': typeof PedidosLazyRoute
@@ -216,7 +216,7 @@ export interface FileRoutesById {
   '/aboutus': typeof AboutusLazyRoute
   '/cart': typeof CartLazyRoute
   '/contact': typeof ContactLazyRoute
-  '/libroDetail': typeof LibroDetailLazyRoute
+  '/bookDetail': typeof BookDetailLazyRoute
   '/libroSearch': typeof LibroSearchLazyRoute
   '/login': typeof LoginLazyRoute
   '/pedidos': typeof PedidosLazyRoute
@@ -232,7 +232,7 @@ export interface FileRouteTypes {
     | '/aboutus'
     | '/cart'
     | '/contact'
-    | '/libroDetail'
+    | '/bookDetail'
     | '/libroSearch'
     | '/login'
     | '/pedidos'
@@ -245,7 +245,7 @@ export interface FileRouteTypes {
     | '/aboutus'
     | '/cart'
     | '/contact'
-    | '/libroDetail'
+    | '/bookDetail'
     | '/libroSearch'
     | '/login'
     | '/pedidos'
@@ -258,7 +258,7 @@ export interface FileRouteTypes {
     | '/aboutus'
     | '/cart'
     | '/contact'
-    | '/libroDetail'
+    | '/bookDetail'
     | '/libroSearch'
     | '/login'
     | '/pedidos'
@@ -273,7 +273,7 @@ export interface RootRouteChildren {
   AboutusLazyRoute: typeof AboutusLazyRoute
   CartLazyRoute: typeof CartLazyRoute
   ContactLazyRoute: typeof ContactLazyRoute
-  LibroDetailLazyRoute: typeof LibroDetailLazyRoute
+  BookDetailLazyRoute: typeof BookDetailLazyRoute
   LibroSearchLazyRoute: typeof LibroSearchLazyRoute
   LoginLazyRoute: typeof LoginLazyRoute
   PedidosLazyRoute: typeof PedidosLazyRoute
@@ -287,7 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutusLazyRoute: AboutusLazyRoute,
   CartLazyRoute: CartLazyRoute,
   ContactLazyRoute: ContactLazyRoute,
-  LibroDetailLazyRoute: LibroDetailLazyRoute,
+  BookDetailLazyRoute: BookDetailLazyRoute,
   LibroSearchLazyRoute: LibroSearchLazyRoute,
   LoginLazyRoute: LoginLazyRoute,
   PedidosLazyRoute: PedidosLazyRoute,
