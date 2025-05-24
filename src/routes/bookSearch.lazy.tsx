@@ -14,80 +14,78 @@ import {
     Typography,
     Paper,
 } from '@mui/material';
-import { DefaultApi, FindLibrosByCriteriaRequest, FindIdiomasByLocaleRequest, FindEdadesByLocaleRequest, GeneroLiterario, FindGenerosLiterariosByLocaleRequest } from '../services/proxy/generated';
-import { LibroDTO, Idioma, ClasificacionEdad } from '../services/proxy/generated/models';
+import { DefaultApi, FindBooksByCriteriaRequest, FindLanguagesByLocaleRequest, FindReadingAgeGroupsByLocaleRequest, LiteraryGenre, FindLiteraryGenresByLocaleRequest} from '../services/proxy/generated';
+import { Book, Language, ReadingAgeGroup } from '../services/proxy/generated/models';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import LibroCard from '../components/BookCard';
+import BookCard from '../components/BookCard';
 import theme from '../themes/themes';
 import { createLazyFileRoute } from '@tanstack/react-router';
 
-export const Route = createLazyFileRoute('/libroSearch')({
-    component: LibroSearch,
+export const Route = createLazyFileRoute('/bookSearch')({
+    component: BookSearch,
 });
 
-function LibroSearch() {
+function BookSearch() {
     const api = new DefaultApi();
 
-    const locale: FindIdiomasByLocaleRequest | FindEdadesByLocaleRequest | FindGenerosLiterariosByLocaleRequest = {
-        locale: "es"
+    const locale: FindLanguagesByLocaleRequest | FindReadingAgeGroupsByLocaleRequest | FindLiteraryGenresByLocaleRequest = {
+        locale: "es_ES"
     };
 
     const [value, setValue] = useState<number[]>([10, 50]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [titulo, setTitulo] = useState<string | undefined>("");
-    const [libros, setLibros] = useState<LibroDTO[]>([]);
-    const [precioDesde, setPrecioDesde] = useState<number | undefined>(undefined);
-    const [precioHasta, setPrecioHasta] = useState<number | undefined>(undefined);
-    const [fechaDesde, setFechaDesde] = useState<Date | undefined>(undefined);
-    const [fechaHasta, setFechaHasta] = useState<Date | undefined>(undefined);
-    const [idiomas, setIdiomas] = useState<Idioma[] | undefined>(undefined);
+    const [title, setTitle] = useState<string | undefined>("");
+    const [books, setBooks] = useState<Book[]>([]);
+    const [minPrice, setMinPrice] = useState<number | undefined>(undefined);
+    const [maxPrice, setMaxPrice] = useState<number | undefined>(undefined);
+    const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+    const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+    const [languages, setLanguages] = useState<Language[] | undefined>(undefined);
     const [selected, setSelected] = useState<number | null>(null);
-    const [idiomaId, setIdiomaId] = useState<number | undefined>(undefined);
-    const [edades, setEdades] = useState<ClasificacionEdad[] | undefined>(undefined);
-    const [clasificacionEdadId, setClasificacionEdadId] = useState<number | undefined>(undefined);
-    const [generosLiterarios, setGenerosLiterarios] = useState<GeneroLiterario[] | undefined>(undefined);
-    const [generoLiterarioId, setGeneroLiterarioId] = useState<number | undefined>(undefined);
+    const [languageId, setLanguageId] = useState<number | undefined>(undefined);
+    const [readingAgeGroup, setReadingAgeGroup] = useState<ReadingAgeGroup[] | undefined>(undefined);
+    const [readingAgeGroupId, setReadingAgeGroupId] = useState<number | undefined>(undefined);
+    //const [literaryGenres, setLiteraryGenres] = useState<LiteraryGenre[] | undefined>(undefined);
     const [page, setPage] = useState<number>(1);
     const [rowsPerPage] = useState<number>(12);
 
-    async function fetchLibros() {
+    async function fetchBooks() {
         setLoading(true);
-        const LibroCriteria: FindLibrosByCriteriaRequest = {
-            nombre: titulo,
-            locale: "es",
-            desdePrecio: precioDesde,
-            hastaPrecio: precioHasta,
-            desdeFecha: fechaDesde,
-            hastaFecha: fechaHasta,
-            idiomaId: idiomaId,
-            clasificacionEdadId: clasificacionEdadId,
-            generoLiterarioId: generoLiterarioId
+        const BookCriteria: FindBooksByCriteriaRequest = {
+            title: title,
+            locale: "es_ES",
+            minPrice: minPrice,
+            maxPrice: maxPrice,
+            startDate: startDate,
+            endDate: endDate,
+            languageId: languageId,
+            readingAgeGroupId: readingAgeGroupId,
         };
-        setLibros(await api.findLibrosByCriteria(LibroCriteria));
+        setBooks(await api.findBooksByCriteria(BookCriteria));
         setLoading(false);
     };
 
-    async function fetchIdiomas() {
-        const idiomas = await api.findIdiomasByLocale(locale);
-        setIdiomas(idiomas);
+    async function fetchLanguages() {
+        const languages = await api.findLanguagesByLocale(locale);
+        setLanguages(languages);
     }
 
-    async function fetchEdades() {
-        const edades = await api.findEdadesByLocale(locale);
-        setEdades(edades);
+    async function fetchReadingAgeGroups() {
+        const readingAgeGroups = await api.findReadingAgeGroupsByLocale(locale);
+        setReadingAgeGroup(readingAgeGroups);
     }
 
-    async function fetchGeneros() {
-        const generos = await api.findGenerosLiterariosByLocale(locale);
-        setGenerosLiterarios(generos);
-    }
+    // async function fetchLiteraryGenres() {
+    //     const literaryGenres = await api.findLiteraryGenresByLocale(locale);
+    //     setLiteraryGenres(literaryGenres);
+    // }
 
     useEffect(() => {
-        fetchIdiomas();
-        fetchEdades();
-        fetchGeneros();
+        fetchLanguages();
+        fetchReadingAgeGroups();
+        // fetchGeneros();
     }, []);
 
     function valueText(value: number) {
@@ -96,20 +94,20 @@ function LibroSearch() {
 
     const handleSliderChange = (event: Event, newValue: number | number[]) => {
         setValue(newValue as number[]);
-        setPrecioDesde((newValue as number[])[0]);
-        setPrecioHasta((newValue as number[])[1]);
+        setMinPrice((newValue as number[])[0]);
+        setMaxPrice((newValue as number[])[1]);
     };
 
-    const handleIdiomaChange = (index: number, idiomaId: number | undefined) => {
+    const handleLanguageChange = (index: number, idiomaId: number | undefined) => {
         setSelected(index);
-        setIdiomaId(idiomaId);
+        setLanguageId(idiomaId);
     };
 
     const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
         setPage(value);
     };
 
-    const librosPaginados = libros.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+    const paginatedBooks = books.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
     return (
         <ThemeProvider theme={theme}>
@@ -119,23 +117,23 @@ function LibroSearch() {
                     <Grid item xs={12} md={3}>
                         <Paper elevation={3} sx={{ p: 3 }}>
                             <Typography variant="h6" gutterBottom>
-                                Filtros
+                                Filters
                             </Typography>
                             <Box sx={{ mb: 3 }}>
                                 <TextField
-                                    label="Buscar libro"
+                                    label="Search book"
                                     variant="outlined"
                                     fullWidth
-                                    value={titulo}
-                                    onChange={(e) => setTitulo(e.target.value)}
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
                                 />
                             </Box>
                             <Box sx={{ mb: 3 }}>
                                 <Typography variant="subtitle1" gutterBottom>
-                                    Rango de precio
+                                    Price range
                                 </Typography>
                                 <Slider
-                                    getAriaLabel={() => 'Rango de precio'}
+                                    getAriaLabel={() => 'Price range'}
                                     value={value}
                                     onChange={handleSliderChange}
                                     valueLabelDisplay="auto"
@@ -145,81 +143,81 @@ function LibroSearch() {
                             </Box>
                             <Box sx={{ mb: 3 }}>
                                 <Typography variant="subtitle1" gutterBottom>
-                                    Fecha de publicación
+                                    Publication date
                                 </Typography>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <DatePicker
-                                        value={fechaDesde ? dayjs(fechaDesde) : null}
-                                        onChange={(nuevaFechaDesde) => setFechaDesde(nuevaFechaDesde?.startOf('day').toDate())}
-                                        label="Fecha desde"
+                                        value={startDate ? dayjs(startDate) : null}
+                                        onChange={(newStartDate) => setStartDate(newStartDate?.startOf('day').toDate())}
+                                        label="From date"
                                         sx={{ mb: 2, width: '100%' }}
                                     />
                                     <DatePicker
-                                        value={fechaHasta ? dayjs(fechaHasta) : null}
-                                        onChange={(nuevaFechaHasta) => setFechaHasta(nuevaFechaHasta?.startOf('day').toDate())}
-                                        label="Fecha hasta"
+                                        value={endDate ? dayjs(endDate) : null}
+                                        onChange={(newEndDate) => setEndDate(newEndDate?.startOf('day').toDate())}
+                                        label="End date"
                                         sx={{ width: '100%' }}
                                     />
                                 </LocalizationProvider>
                             </Box>
                             <Box sx={{ mb: 3 }}>
                                 <Typography variant="subtitle1" gutterBottom>
-                                    Idioma
+                                    Language
                                 </Typography>
                                 <FormGroup>
-                                    {idiomas?.map((idioma, index) => (
+                                    {languages?.map((language, index) => (
                                         <FormControlLabel
-                                            key={idioma.id}
+                                            key={language.id}
                                             control={
                                                 <Checkbox
                                                     checked={selected === index}
-                                                    onChange={() => handleIdiomaChange(index, idioma.id)}
+                                                    onChange={() => handleLanguageChange(index, language.id)}
                                                 />
                                             }
-                                            label={idioma.nombre}
+                                            label={language.name}
                                         />
                                     ))}
                                 </FormGroup>
                             </Box>
                             <Box sx={{ mb: 3 }}>
                                 <Typography variant="subtitle1" gutterBottom>
-                                    Edades
+                                    Reading Age Groups
                                 </Typography>
                                 <Autocomplete
                                     disablePortal
-                                    options={edades || []}
-                                    getOptionLabel={(option) => option.nombre || ""}
-                                    onChange={(e, newValue) => setClasificacionEdadId(newValue?.id)}
+                                    options={readingAgeGroup || []}
+                                    getOptionLabel={(option) => option.name || ""}
+                                    onChange={(e, newValue) => setReadingAgeGroupId(newValue?.id)}
                                     sx={{ width: '100%' }}
-                                    renderInput={(params) => <TextField {...params} label="Edades" />}
+                                    renderInput={(params) => <TextField {...params} label="Reading age groups" />}
                                 />
                             </Box>
-                            <Box sx={{ mb: 3 }}>
+                            {/* <Box sx={{ mb: 3 }}>
                                 <Typography variant="subtitle1" gutterBottom>
-                                    Género Literario
+                                    Literary Genres
                                 </Typography>
                                 <Autocomplete
                                     disablePortal
-                                    options={generosLiterarios || []}
-                                    getOptionLabel={(option) => option.nombre || ""}
-                                    onChange={(e, newValue) => setGeneroLiterarioId(newValue?.id)}
+                                    options={literaryGenres || []}
+                                    getOptionLabel={(option) => option.name || ""}
+                                    onChange={(e, newValue) => setLiteraryGenreId(newValue?.id)}
                                     sx={{ width: '100%' }}
-                                    renderInput={(params) => <TextField {...params} label="Género Literario" />}
+                                    renderInput={(params) => <TextField {...params} label="Literary Genre" />}
                                 />
-                            </Box>
-                            <Button variant="contained" color="primary" fullWidth onClick={fetchLibros}>
-                                Buscar
+                            </Box> */}
+                            <Button variant="contained" color="primary" fullWidth onClick={fetchBooks}>
+                                Search
                             </Button>
                         </Paper>
                     </Grid>
 
-                    {/* Resultados */}
+                    {/* Results */}
                     <Grid item xs={12} md={9}>
                         {loading ? (
                             <Typography variant="h6" align="center">
-                                Cargando...
+                                Loading...
                             </Typography>
-                        ) : libros.length === 0 ? (
+                        ) : books.length === 0 ? (
                             <Box
                                 sx={{
                                     display: 'flex',
@@ -229,21 +227,21 @@ function LibroSearch() {
                                 }}
                             >
                                 <Typography variant="h5" color="textSecondary">
-                                    Realiza una búsqueda para ver los resultados.
+                                    Perform a search to see the results.
                                 </Typography>
                             </Box>
                         ) : (
                             <>
                                 <Grid container spacing={3}>
-                                    {librosPaginados.map((libro) => (
-                                        <Grid item xs={12} sm={6} md={3} key={libro.id}>
-                                            <LibroCard libro={libro} />
+                                    {paginatedBooks.map((book) => (
+                                        <Grid item xs={12} sm={6} md={3} key={book.id}>
+                                            <BookCard book={book} />
                                         </Grid>
                                     ))}
                                 </Grid>
                                 <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
                                     <Pagination
-                                        count={Math.ceil(libros.length / rowsPerPage)}
+                                        count={Math.ceil(books.length / rowsPerPage)}
                                         page={page}
                                         onChange={handlePageChange}
                                         variant="outlined"
@@ -259,4 +257,4 @@ function LibroSearch() {
     );
 }
 
-export default LibroSearch;
+export default BookSearch;
