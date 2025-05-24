@@ -3,17 +3,17 @@ import { Link } from "@tanstack/react-router";
 import { Button, Card, CardContent, Typography, Box, Container, CircularProgress } from "@mui/material";
 import { Star, ShoppingCart } from "@mui/icons-material";
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { DefaultApi, FindLibrosByCriteriaRequest, LibroDTO } from "../services/proxy/generated";
-import { LineaPedido, Pedido, UpdatePedidoRequest, CreatePedidoRequest, ClienteDTO } from "../services/proxy/generated";
+import { DefaultApi, FindBooksByCriteriaRequest, Book } from "../services/proxy/generated";
+import { OrderItem, Order, UpdateOrderRequest, CreateOrderRequest, User } from "../services/proxy/generated";
 import { useNavigate } from "@tanstack/react-router";
 import { CartContext } from '../states/contexts';
 import { HistoryState } from "@tanstack/react-router";
 
 const api = new DefaultApi();
-const clienteAutenticado: ClienteDTO | null = JSON.parse(sessionStorage.getItem("usuarioAutenticado") || "null");
+const authenticatedUser: User | null = JSON.parse(sessionStorage.getItem("authenticatedUser") || "null");
 
-type LibroNavigationState = HistoryState & {
-    libro: LibroDTO;
+type BookNavigationState = HistoryState & {
+    book: Book;
   };
   
 
@@ -22,20 +22,20 @@ export const Route = createLazyFileRoute('/')({
 });
 
 function Index() {
-    const [libros, setLibros] = useState<LibroDTO[]>([]);
+    const [books, setBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
    
 
     useEffect(() => {
         const fetchLibros = async () => {
             try {
-                const criteria: FindLibrosByCriteriaRequest = {
-                    locale: "es",
+                const criteria: FindBooksByCriteriaRequest = {
+                    locale: "es_ES",
                 };
-                const response = await api.findLibrosByCriteria(criteria);
-                setLibros(response);
+                const response = await api.findBooksByCriteria(criteria);
+                setBooks(response);
             } catch (error) {
-                console.error("Error al obtener los libros:", error);
+                console.error("Error retrieving the books: ", error);
             } finally {
                 setLoading(false);
             }
@@ -45,26 +45,26 @@ function Index() {
     }, []);
 
     const getNovedades = () => {
-        return [...libros]
-            .sort((a, b) => new Date(b.fechaPublicacion!).getTime() - new Date(a.fechaPublicacion!).getTime())
+        return [...books]
+            .sort((a, b) => new Date(b.publicationDate!).getTime() - new Date(a.publicationDate!).getTime())
             .slice(0, 4);
     };
 
     const getRecomendados = () => {
-        return [...libros]
-            .sort((a, b) => (b.valoracionMedia || 0) - (a.valoracionMedia || 0))
+        return [...books]
+            .sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0))
             .slice(0, 4);
     };
 
     const getMasVendidos = () => {
-        return [...libros]
-            .sort((a, b) => (b.unidades || 0) - (a.unidades || 0))
+        return [...books]
+            .sort((a, b) => (b.stock || 0) - (a.stock || 0))
             .slice(0, 4);
     };
 
     return (
         <Box sx={{ width: '100%', minHeight: '100vh', bgcolor: 'background.default' }}>
-            {/* Banner principal */}
+            {/* Main Banner */}
             <Box
                 sx={{
                     position: 'relative',
@@ -89,29 +89,29 @@ function Index() {
                     }}
                 >
                     <Typography variant="h3" component="h1" sx={{ fontWeight: 'bold' }}>
-                        Bienvenido a The Golden Book
+                        Welcome to The Golden Book
                     </Typography>
                     <Typography variant="subtitle1" sx={{ mt: 2 }}>
-                        Descubre los mejores libros para ti
+                        Discover the best books for you.
                     </Typography>
                     <Button
                         variant="contained"
                         color="primary"
                         sx={{ mt: 4, bgcolor: 'yellow.500', color: 'black', '&:hover': { bgcolor: 'yellow.600' } }}
                         component={Link}
-                        to="/libroSearch"
+                        to="/bookSearch"
                     >
-                        Explorar Libros
+                        Discover books
                     </Button>
                 </Box>
             </Box>
 
-            {/* Contenedor principal */}
+            {/* Main container */}
             <Container maxWidth="lg" sx={{ px: 6, py: 10 }}>
-                {/* Sección de novedades */}
+                {/* New Arrivals Section */}
                 <Box sx={{ mb: 8 }}>
                     <Typography variant="h4" component="h2" sx={{ textAlign: 'center', mb: 6 }}>
-                        📚 Novedades
+                        📚 New Arrivals
                     </Typography>
                     {loading ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -119,17 +119,17 @@ function Index() {
                         </Box>
                     ) : (
                         <Box sx={{ display: 'flex', overflowX: 'auto', gap: 4, pb: 4 }}>
-                            {getNovedades().map((libro) => (
-                                <BookCard key={libro.id} libro={libro} />
+                            {getNovedades().map((book) => (
+                                <BookCard key={book.id} book={book} />
                             ))}
                         </Box>
                     )}
                 </Box>
 
-                {/* Sección de libros recomendados */}
+                {/* Recommended books section */}
                 <Box sx={{ mb: 8 }}>
                     <Typography variant="h4" component="h2" sx={{ textAlign: 'center', mb: 6 }}>
-                        🌟 Recomendados
+                        🌟 Recommended
                     </Typography>
                     {loading ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -137,17 +137,17 @@ function Index() {
                         </Box>
                     ) : (
                         <Box sx={{ display: 'flex', overflowX: 'auto', gap: 4, pb: 4 }}>
-                            {getRecomendados().map((libro) => (
-                                <BookCard key={libro.id} libro={libro} />
+                            {getRecomendados().map((book) => (
+                                <BookCard key={book.id} book={book} />
                             ))}
                         </Box>
                     )}
                 </Box>
 
-                {/* Sección de más vendidos */}
+                {/* Bestsellers Section */}
                 <Box>
                     <Typography variant="h4" component="h2" sx={{ textAlign: 'center', mb: 6 }}>
-                        🔥 Más Vendidos
+                        🔥 Bestsellers
                     </Typography>
                     {loading ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -155,8 +155,8 @@ function Index() {
                         </Box>
                     ) : (
                         <Box sx={{ display: 'flex', overflowX: 'auto', gap: 4, pb: 4 }}>
-                            {getMasVendidos().map((libro) => (
-                                <BookCard key={libro.id} libro={libro} />
+                            {getMasVendidos().map((book) => (
+                                <BookCard key={book.id} book={book} />
                             ))}
                         </Box>
                     )}
@@ -166,7 +166,7 @@ function Index() {
     );
 }
 
-const BookCard = ({ libro }: { libro: LibroDTO }) => {
+const BookCard = ({ book }: { book: Book }) => {
     const [imageUrl, setImageUrl] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const navigate = useNavigate();
@@ -174,7 +174,7 @@ const BookCard = ({ libro }: { libro: LibroDTO }) => {
     const cartContext = useContext(CartContext);
 
     if (!cartContext) {
-        throw new Error("CartContext debe usarse dentro de un CartProvider");
+        throw new Error("CartContext must be used within a CartProvider");
     }
 
     const [cart, setCart] = cartContext;
@@ -185,13 +185,13 @@ const BookCard = ({ libro }: { libro: LibroDTO }) => {
         async function fetchImages() {
             try {
                 setIsLoading(true);
-                const blob = await api.getImageByBookId({ libroId: libro.id!, locale: "es" });
+                const blob = await api.getImageByBookId({ bookId: book.id!, locale: "es_ES" });
                 if (mounted) {
                     const url = URL.createObjectURL(blob);
                     setImageUrl(url);
                 }
             } catch (error) {
-                console.error(`Error cargando imagen para libro ${libro.id}:`, error);
+                console.error(`Error loading book image ${book.id}:`, error);
                 if (mounted) setImageUrl('../src/assets/imgs/no_image.webp');
             } finally {
                 if (mounted) setIsLoading(false);
@@ -204,59 +204,60 @@ const BookCard = ({ libro }: { libro: LibroDTO }) => {
             mounted = false;
             if (imageUrl) URL.revokeObjectURL(imageUrl);
         };
-    }, [libro.id]);
+    }, [book.id]);
 
     async function addToCart() {
         if (cart) {
-            const linea: LineaPedido = {
-                precio: libro.precio,
-                libroId: libro.id,
-                unidades: 1,
-                nombreLibro: libro.nombre,
+            const orderItem: OrderItem = {
+                price: book.price,
+                bookId: book.id,
+                quantity: 1,
+                bookTitle: book.title,
             };
 
-            cart.lineas?.push(linea);
+            cart.orderItems?.push(orderItem);
 
-            const updatePedidoRequest: UpdatePedidoRequest = {
-                pedido: cart,
+            const updatePedidoRequest: UpdateOrderRequest = {
+                order: cart,
             };
 
-            const pedidoActualizado = await api.updatePedido(updatePedidoRequest);
-            setCart(pedidoActualizado);
+            const updatedOrder = await api.updateOrder(updatePedidoRequest);
+            setCart(updatedOrder);
         } else {
-            const linea: LineaPedido = {
-                precio: libro.precio,
-                libroId: libro.id,
-                unidades: 1,
-                nombreLibro: libro.nombre,
+            const orderItem: OrderItem = {
+                price: book.price,
+                bookId: book.id,
+                quantity: 1,
+                bookTitle: book.title,
             };
 
-            const lineas: LineaPedido[] = [linea];
+            const orderItems: OrderItem[] = [orderItem];
 
-            const pedido: Pedido = {
-                clienteId: clienteAutenticado?.id,
-                tipoEstadoPedidoId: 7,
-                lineas: lineas,
-                fechaRealizacion: new Date(),
+            const order: Order = {
+                userId: authenticatedUser?.id,
+                orderStatusId: 6,
+                orderItems: orderItems,
+                orderDate: new Date(),
             };
 
-            const createPedidoRequest: CreatePedidoRequest = {
-                pedido: pedido,
+            const createOrderRequest: CreateOrderRequest = {
+                order: order,
+                locale: "es_ES"
             };
 
-            const carritoCreado = await api.createPedido(createPedidoRequest);
-            setCart(carritoCreado);
+            const createdCart = await api.createOrder(createOrderRequest);
+            setCart(createdCart);
         }
 
         navigate({ to: "/cart" });
     }
 
-    const handleClickTitulo = () => {
-        console.log("Navigating with state: ", {libro});
+    const handleClickTitle = () => {
+        console.log("Navigating with state: ", {book});
         navigate({
-            to: '/libroDetail',
-            params: { id: libro.id?.toString()},
-            state: { libro } as LibroNavigationState,
+            to: '/bookDetail',
+            params: { id: book.id?.toString()},
+            state: { book } as BookNavigationState,
         })
     }
 
@@ -280,7 +281,7 @@ const BookCard = ({ libro }: { libro: LibroDTO }) => {
                 <Box
                     component="img"
                     src={imageUrl || "../src/assets/imgs/no_image.webp"}
-                    alt={libro.nombre}
+                    alt={book.title}
                     sx={{ width: '100%', height: 250, objectFit: 'contain', borderRadius: 2 }}
                     onError={() => setImageUrl('/default-book-cover.jpg')}
                 />
@@ -289,17 +290,17 @@ const BookCard = ({ libro }: { libro: LibroDTO }) => {
                 <Typography 
                 variant="h6" 
                 component="h3" 
-                onClick={handleClickTitulo}
+                onClick={handleClickTitle}
                 sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' }, fontWeight: 'bold'}}
                 >
-                    {libro.nombre}
+                    {book.title}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {libro.autores?.map((autor) => `${autor.nombre} ${autor.apellido1}`).join(', ')}
+                    {book.authors?.map((author) => `${author.name} ${author.lastName}`).join(', ')}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', color: 'warning.main' }}>
-                        <Star sx={{ width: 16, height: 16, mr: 1 }} /> {libro.valoracionMedia?.toFixed(1) || 'N/A'}
+                        <Star sx={{ width: 16, height: 16, mr: 1 }} /> {book.averageRating?.toFixed(1) || 'N/A'}
                     </Box>
                     <Button
                         variant="contained"
@@ -307,7 +308,7 @@ const BookCard = ({ libro }: { libro: LibroDTO }) => {
                         sx={{ p: 1, display: 'flex', alignItems: 'center' }}
                         onClick={addToCart}
                     >
-                        <ShoppingCart sx={{ width: 16, height: 16, mr: 1 }} /> Comprar
+                        <ShoppingCart sx={{ width: 16, height: 16, mr: 1 }} /> Buy
                     </Button>
                 </Box>
             </CardContent>
