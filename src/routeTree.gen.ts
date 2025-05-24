@@ -21,8 +21,8 @@ const PublicLazyImport = createFileRoute('/public')()
 const ProfileLazyImport = createFileRoute('/profile')()
 const PedidosLazyImport = createFileRoute('/pedidos')()
 const LoginLazyImport = createFileRoute('/login')()
-const LibroSearchLazyImport = createFileRoute('/libroSearch')()
-const LibroDetailLazyImport = createFileRoute('/bookDetail')()
+const BookSearchLazyImport = createFileRoute('/bookSearch')()
+const BookDetailLazyImport = createFileRoute('/bookDetail')()
 const ContactLazyImport = createFileRoute('/contact')()
 const CartLazyImport = createFileRoute('/cart')()
 const AboutusLazyImport = createFileRoute('/aboutus')()
@@ -60,13 +60,13 @@ const LoginLazyRoute = LoginLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route))
 
-const LibroSearchLazyRoute = LibroSearchLazyImport.update({
-  id: '/libroSearch',
-  path: '/libroSearch',
+const BookSearchLazyRoute = BookSearchLazyImport.update({
+  id: '/bookSearch',
+  path: '/bookSearch',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/libroSearch.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./routes/bookSearch.lazy').then((d) => d.Route))
 
-const LibroDetailLazyRoute = LibroDetailLazyImport.update({
+const LibroDetailLazyRoute = BookDetailLazyImport.update({
   id: '/bookDetail',
   path: '/bookDetail',
   getParentRoute: () => rootRoute,
@@ -132,14 +132,14 @@ declare module '@tanstack/react-router' {
       id: '/bookDetail'
       path: '/bookDetail'
       fullPath: '/bookDetail'
-      preLoaderRoute: typeof LibroDetailLazyImport
+      preLoaderRoute: typeof BookDetailLazyImport
       parentRoute: typeof rootRoute
     }
-    '/libroSearch': {
-      id: '/libroSearch'
-      path: '/libroSearch'
-      fullPath: '/libroSearch'
-      preLoaderRoute: typeof LibroSearchLazyImport
+    '/bookSearch': {
+      id: '/bookSearch'
+      path: '/bookSearch'
+      fullPath: '/bookSearch'
+      preLoaderRoute: typeof BookSearchLazyImport
       parentRoute: typeof rootRoute
     }
     '/login': {
@@ -188,7 +188,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartLazyRoute
   '/contact': typeof ContactLazyRoute
   '/bookDetail': typeof BookDetailLazyRoute
-  '/libroSearch': typeof LibroSearchLazyRoute
+  '/bookSearch': typeof BookSearchLazyRoute
   '/login': typeof LoginLazyRoute
   '/pedidos': typeof PedidosLazyRoute
   '/profile': typeof ProfileLazyRoute
@@ -202,7 +202,7 @@ export interface FileRoutesByTo {
   '/cart': typeof CartLazyRoute
   '/contact': typeof ContactLazyRoute
   '/bookDetail': typeof BookDetailLazyRoute
-  '/libroSearch': typeof LibroSearchLazyRoute
+  '/bookSearch': typeof BookSearchLazyRoute
   '/login': typeof LoginLazyRoute
   '/pedidos': typeof PedidosLazyRoute
   '/profile': typeof ProfileLazyRoute
@@ -217,7 +217,7 @@ export interface FileRoutesById {
   '/cart': typeof CartLazyRoute
   '/contact': typeof ContactLazyRoute
   '/bookDetail': typeof BookDetailLazyRoute
-  '/libroSearch': typeof LibroSearchLazyRoute
+  '/bookSearch': typeof BookSearchLazyRoute
   '/login': typeof LoginLazyRoute
   '/pedidos': typeof PedidosLazyRoute
   '/profile': typeof ProfileLazyRoute
@@ -233,7 +233,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/contact'
     | '/bookDetail'
-    | '/libroSearch'
+    | '/bookSearch'
     | '/login'
     | '/pedidos'
     | '/profile'
@@ -246,7 +246,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/contact'
     | '/bookDetail'
-    | '/libroSearch'
+    | '/bookSearch'
     | '/login'
     | '/pedidos'
     | '/profile'
@@ -259,7 +259,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/contact'
     | '/bookDetail'
-    | '/libroSearch'
+    | '/bookSearch'
     | '/login'
     | '/pedidos'
     | '/profile'
@@ -274,7 +274,7 @@ export interface RootRouteChildren {
   CartLazyRoute: typeof CartLazyRoute
   ContactLazyRoute: typeof ContactLazyRoute
   BookDetailLazyRoute: typeof BookDetailLazyRoute
-  LibroSearchLazyRoute: typeof LibroSearchLazyRoute
+  BookSearchLazyRoute: typeof BookSearchLazyRoute
   LoginLazyRoute: typeof LoginLazyRoute
   PedidosLazyRoute: typeof PedidosLazyRoute
   ProfileLazyRoute: typeof ProfileLazyRoute
@@ -288,7 +288,7 @@ const rootRouteChildren: RootRouteChildren = {
   CartLazyRoute: CartLazyRoute,
   ContactLazyRoute: ContactLazyRoute,
   BookDetailLazyRoute: BookDetailLazyRoute,
-  LibroSearchLazyRoute: LibroSearchLazyRoute,
+  BookSearchLazyRoute: BookSearchLazyRoute,
   LoginLazyRoute: LoginLazyRoute,
   PedidosLazyRoute: PedidosLazyRoute,
   ProfileLazyRoute: ProfileLazyRoute,
