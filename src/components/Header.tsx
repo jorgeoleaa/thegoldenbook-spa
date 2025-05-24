@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useContext } from 'react';
-import { ClienteContext, CartContext } from '../states/contexts';
+import { ClienteContext as UserContext, CartContext } from '../states/contexts';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { AppBar, Box, Toolbar, IconButton, Typography, Menu, Container, Avatar, Button, Tooltip, MenuItem, Badge } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -11,13 +11,13 @@ import ContactMailIcon from '@mui/icons-material/ContactMail';
 import SearchIcon from '@mui/icons-material/Search';
 
 const sections = [
-  { label: 'Inicio', path: '/' },
-  { label: 'Categorías', path: '/categories', icon: <LibraryBooksIcon fontSize="small" /> },
-  { label: 'Novedades', path: '/new-releases', icon: <NewReleasesIcon fontSize="small" /> },
-  { label: 'Contacto', path: '/contact', icon: <ContactMailIcon fontSize="small" /> },
+  { label: 'Home', path: '/' },
+  { label: 'Categories', path: '/categories', icon: <LibraryBooksIcon fontSize="small" /> },
+  { label: 'New Releases', path: '/new-releases', icon: <NewReleasesIcon fontSize="small" /> },
+  { label: 'Contact', path: '/contact', icon: <ContactMailIcon fontSize="small" /> },
 ];
 
-const settings = ['Mi perfil', 'Mis pedidos', 'Salir'];
+const settings = ['My profile', 'My orders', 'Log out'];
 
 const CartBadge = styled(Badge)`
   & .MuiBadge-badge {
@@ -28,20 +28,20 @@ const CartBadge = styled(Badge)`
 
 function Header() {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  const clienteContext = useContext(ClienteContext);
+  const userContext = useContext(UserContext);
   const cartContext = useContext(CartContext);
   const navigate = useNavigate();
 
-  if (!clienteContext || !cartContext) {
-    throw new Error("Los contextos deben usarse dentro de sus respectivos proveedores");
+  if (!userContext || !cartContext) {
+    throw new Error("Contexts must be used within their respective providers.");
   }
 
   const [cart, setCart] = cartContext;
-  const [clienteAutenticado, setClienteAutenticado] = clienteContext; // Ahora el estado viene del contexto
+  const [authenticatedUser, setAuthenticatedUser] = userContext;
 
-  function salir() {
-    sessionStorage.removeItem("usuarioAutenticado");
-    setClienteAutenticado(null); // Asegura que se refleje el cambio en toda la app
+  function logout() {
+    sessionStorage.removeItem("authenticatedUser");
+    setAuthenticatedUser(null);
     setCart({});
     navigate({ to: '/' });
   }
@@ -65,7 +65,7 @@ function Header() {
             The Golden Book
           </Typography>
 
-          {/* Secciones para pantallas grandes */}
+          {/* Sections for large screens */}
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, ml: 4 }}>
             {sections.map((section) => (
               <Button
@@ -80,14 +80,14 @@ function Header() {
             ))}
           </Box>
 
-          {/* Ícono de búsqueda */}
-          <IconButton component={Link} to="/libroSearch" sx={{ color: 'white', mr: 2 }}>
+          {/* Search icon */}
+          <IconButton component={Link} to="/bookSearch" sx={{ color: 'white', mr: 2 }}>
             <SearchIcon />
           </IconButton>
 
-          {/* Carrito de compras */}
+          {/* Shopping cart */}
           <IconButton onClick={
-            clienteAutenticado ? 
+            authenticatedUser ? 
             () => navigate({ to: '/cart' })
             : () => navigate({ to: '/login' })
           } sx={{ color: 'white', mr: 2 }}>
@@ -96,15 +96,15 @@ function Header() {
             </CartBadge>
           </IconButton>
 
-          {/* Menú de usuario */}
-          {clienteAutenticado ? (
-            <Tooltip title="Configuración">
+          {/* User menu */}
+          {authenticatedUser ? (
+            <Tooltip title="Settings">
               <IconButton onClick={(e) => setAnchorElUser(e.currentTarget)} sx={{ p: 0 }}>
                 <Avatar />
               </IconButton>
             </Tooltip>
           ) : (
-            <Button component={Link} to="/login" variant="contained">Iniciar Sesión</Button>
+            <Button component={Link} to="/login" variant="contained">Log in</Button>
           )}
           <Menu
             anchorEl={anchorElUser}
@@ -115,17 +115,17 @@ function Header() {
             {settings.map((setting) => (
               <MenuItem key={setting} onClick={() => {
                 setAnchorElUser(null);
-                if (setting === 'Salir') {
-                  salir(); 
-                } else if (setting === 'Mi perfil') {
+                if (setting === 'Log out') {
+                  logout(); 
+                } else if (setting === 'My profile') {
                   navigate({ to: '/profile' }); 
-                } else if (setting === 'Mis pedidos') {
-                  navigate({ to: '/pedidos' });
+                } else if (setting === 'My orders') {
+                  navigate({ to: '/orders' });
                 }
               }}>
-                {setting === 'Mi perfil' || setting === 'Mis pedidos' ? (
+                {setting === 'My profile' || setting === 'My orders' ? (
                   <Link
-                    to={setting === 'Mi perfil' ? '/profile' : '/pedidos'}
+                    to={setting === 'My profile' ? '/profile' : '/orders'}
                     style={{ textDecoration: 'none', color: 'inherit' }}
                   >
                     {setting}
