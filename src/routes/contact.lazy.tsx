@@ -21,17 +21,17 @@ function ContactPage() {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Mensaje enviado:", formData);
+    console.log("Message sent:", formData);
   };
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         <Typography variant="h4" gutterBottom>
-          Contacto
+          Contact
         </Typography>
         <Typography variant="body1" color="textSecondary" paragraph>
-          ¿Tienes alguna pregunta? Contáctanos a través del formulario o visítanos en nuestra dirección.
+          Do you have any questions? Contact us through the form or visit us at our address.
         </Typography>
 
         <Grid container spacing={4}>
@@ -39,7 +39,7 @@ function ContactPage() {
             <Box component="form" onSubmit={handleSubmit}>
               <TextField
                 fullWidth
-                label="Nombre"
+                label="Name"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
@@ -48,7 +48,7 @@ function ContactPage() {
               />
               <TextField
                 fullWidth
-                label="Correo Electrónico"
+                label="Email"
                 type="email"
                 name="email"
                 value={formData.email}
@@ -58,7 +58,7 @@ function ContactPage() {
               />
               <TextField
                 fullWidth
-                label="Mensaje"
+                label="Message"
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
@@ -68,20 +68,20 @@ function ContactPage() {
                 required
               />
               <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-                Enviar Mensaje
+                Sent Message
               </Button>
             </Box>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="h6">Nuestra dirección</Typography>
+            <Typography variant="h6">Our address</Typography>
             <Typography variant="body2">Rúa do Comercio, 20, 27400 Monforte de Lemos, Lugo</Typography>
-            <Typography variant="h6" sx={{ mt: 2 }}>Teléfono</Typography>
+            <Typography variant="h6" sx={{ mt: 2 }}>Phone Number</Typography>
             <Typography variant="body2">+123 456 789</Typography>
-            <Typography variant="h6" sx={{ mt: 2 }}>Correo</Typography>
+            <Typography variant="h6" sx={{ mt: 2 }}>Email</Typography>
             <Typography variant="body2">info@thegoldenbook.com</Typography>
             <Box sx={{ mt: 2, mb: 2, pb: 2 } }>
               <iframe
-                title="Mapa de ubicación"
+                title="Location map"
                 width="100%"
                 height="250"
                 frameBorder="0"
