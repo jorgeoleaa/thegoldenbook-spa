@@ -23,43 +23,43 @@ import {
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { DefaultApi, FindPedidosByCriteriaRequest } from '../services/proxy/generated'; 
-import { Pedido, LineaPedido, ClienteDTO } from '../services/proxy/generated';
+import { DefaultApi, FindOrdersByCriteriaRequest } from '../services/proxy/generated'; 
+import { Order, OrderItem, User } from '../services/proxy/generated';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-const cliente: ClienteDTO | null = JSON.parse(sessionStorage.getItem('usuarioAutenticado') || 'null');
+const user: User | null = JSON.parse(sessionStorage.getItem('authenticatedUser') || 'null');
 
 const api = new DefaultApi();
 
-export const Route = createLazyFileRoute("/pedidos")({
-    component: MisPedidos,
+export const Route = createLazyFileRoute("/orders")({
+    component: MyOrders,
 });
 
-function MisPedidos() {
-    const [pedidos, setPedidos] = useState<Pedido[]>([]);
+function MyOrders() {
+    const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [fechaDesde, setFechaDesde] = useState<dayjs.Dayjs | null>(null);
-    const [fechaHasta, setFechaHasta] = useState<dayjs.Dayjs | null>(null);
-    const [estadoId, setEstadoId] = useState<number | undefined>(undefined);
-    const [openPedidoId, setOpenPedidoId] = useState<number | null>(null);
+    const [startDate, setStartDate] = useState<dayjs.Dayjs | null>(null);
+    const [endDate, setEndDate] = useState<dayjs.Dayjs | null>(null);
+    const [statusId, setStatusId] = useState<number | undefined>(undefined);
+    const [openOrderId, setOpenPedidoId] = useState<number | null>(null);
 
     useEffect(() => {
-        fetchPedidos();
+        fetchOrders();
     }, []);
 
-    const fetchPedidos = async () => {
+    const fetchOrders = async () => {
         setLoading(true);
         try {
-            const criteria: FindPedidosByCriteriaRequest = {
-                fechaDesde: fechaDesde ? fechaDesde.format('YYYY-MM-DD') : undefined, 
-                fechaHasta: fechaHasta ? fechaHasta.format('YYYY-MM-DD') : undefined, 
-                clienteId: cliente?.id,
-                tipoEstadoPedidoId: estadoId,
+            const criteria: FindOrdersByCriteriaRequest = {
+                startDate: startDate ? startDate.format('YYYY-MM-DD') : undefined, 
+                endDate: endDate ? endDate.format('YYYY-MM-DD') : undefined, 
+                userId: user?.id,
+                orderStatusId: statusId,
             };
-            const response = await api.findPedidosByCriteria(criteria);
-            setPedidos(response);
+            const response = await api.findOrdersByCriteria(criteria);
+            setOrders(response);
         } catch (error) {
             console.error('Error al obtener los pedidos:', error);
         } finally {
@@ -67,24 +67,24 @@ function MisPedidos() {
         }
     };
 
-    const filtrarPedidos = () => {
-        fetchPedidos();
+    const filterOrders = () => {
+        fetchOrders();
     };
 
-    const limpiarFiltros = () => {
-        setFechaDesde(null);
-        setFechaHasta(null);
-        setEstadoId(undefined);
-        fetchPedidos();
+    const clearFilters = () => {
+        setStartDate(null);
+        setEndDate(null);
+        setStatusId(undefined);
+        fetchOrders();
     };
 
-    const togglePedido = (pedidoId: number) => {
-        setOpenPedidoId(openPedidoId === pedidoId ? null : pedidoId);
+    const togglePedido = (orderId: number) => {
+        setOpenPedidoId(openOrderId === orderId ? null : orderId);
     };
 
-    const calcularPrecioTotal = (lineas: LineaPedido[] | undefined) => {
-        if (!lineas) return 0;
-        return lineas.reduce((total, linea) => total + (linea.precio || 0) * (linea.unidades || 0), 0);
+    const calculateTotalPrice = (orderItems: OrderItem[] | undefined) => {
+        if (!orderItems) return 0;
+        return orderItems.reduce((total, orderItem) => total + (orderItem.price || 0) * (orderItem.quantity || 0), 0);
     };
 
     return (
@@ -95,38 +95,38 @@ function MisPedidos() {
                     <Grid item xs={12} md={3}>
                         <Paper elevation={3} sx={{ p: 3 }}>
                             <Typography variant="h6" gutterBottom>
-                                Buscar pedidos
+                                Search orders
                             </Typography>
                             <Box sx={{ mb: 3 }}>
                                 <DatePicker
-                                    label="Fecha desde"
-                                    value={fechaDesde}
-                                    onChange={(nuevaFecha) => setFechaDesde(nuevaFecha)} 
+                                    label="Start date"
+                                    value={startDate}
+                                    onChange={(newDate) => setStartDate(newDate)} 
                                     sx={{ width: '100%' }}
                                 />
                             </Box>
                             <Box sx={{ mb: 3 }}>
                                 <DatePicker
-                                    label="Fecha hasta"
-                                    value={fechaHasta}
-                                    onChange={(nuevaFecha) => setFechaHasta(nuevaFecha)} 
+                                    label="End date"
+                                    value={endDate}
+                                    onChange={(newDate) => setEndDate(newDate)} 
                                     sx={{ width: '100%' }} 
                                 />
                             </Box>
                             <Box sx={{ mb: 3 }}>
                                 <FormControl fullWidth>
-                                    <InputLabel>Estado</InputLabel>
+                                    <InputLabel>Status</InputLabel>
                                     <Select
-                                        value={estadoId}
-                                        onChange={(e) => setEstadoId(e.target.value as number)}
-                                        label="Estado"
+                                        value={statusId}
+                                        onChange={(e) => setStatusId(e.target.value as number)}
+                                        label="Status"
                                     >
-                                        <MenuItem value="">Todos</MenuItem>
-                                        <MenuItem value="1">En preparación</MenuItem>
-                                        <MenuItem value="4">En proceso</MenuItem>
-                                        <MenuItem value="2">Enviado</MenuItem>
-                                        <MenuItem value="3">En reparto</MenuItem>
-                                        <MenuItem value="5">Entregado</MenuItem>
+                                        <MenuItem value="">All</MenuItem>
+                                        <MenuItem value="1">In preparation</MenuItem>
+                                        <MenuItem value="4">In process</MenuItem>
+                                        <MenuItem value="2">Shipped</MenuItem>
+                                        <MenuItem value="3">Out for delivery</MenuItem>
+                                        <MenuItem value="5">Delivered</MenuItem>
                                     </Select>
                                 </FormControl>
                             </Box>
@@ -134,35 +134,35 @@ function MisPedidos() {
                                 variant="contained"
                                 color="primary"
                                 fullWidth
-                                onClick={filtrarPedidos}
+                                onClick={filterOrders}
                                 sx={{ mb: 2 }}
                             >
-                                Buscar
+                                Search
                             </Button>
                             <Button
                                 variant="outlined"
                                 color="secondary"
                                 fullWidth
-                                onClick={limpiarFiltros}
+                                onClick={clearFilters}
                             >
-                                Limpiar filtros
+                                Clear filters
                             </Button>
                         </Paper>
                     </Grid>
 
-                    {/* Lista de pedidos */}
+                    {/* Orders list */}
                     <Grid item xs={12} md={9}>
                         <Paper elevation={3} sx={{ p: 3 }}>
                             <Typography variant="h6" gutterBottom>
-                                Mis pedidos
+                                My orders
                             </Typography>
                             {loading ? (
                                 <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
                                     <CircularProgress />
                                 </Box>
-                            ) : pedidos.length === 0 ? (
+                            ) : orders.length === 0 ? (
                                 <Typography variant="body1" color="textSecondary">
-                                    No se encontraron pedidos.
+                                    No orders were found
                                 </Typography>
                             ) : (
                                 <TableContainer>
@@ -170,51 +170,51 @@ function MisPedidos() {
                                         <TableHead>
                                             <TableRow>
                                                 <TableCell />
-                                                <TableCell>Pedido</TableCell>
-                                                <TableCell>Fecha</TableCell>
-                                                <TableCell>Estado</TableCell>
-                                                <TableCell>Precio Total</TableCell>
+                                                <TableCell>Order</TableCell>
+                                                <TableCell>Date</TableCell>
+                                                <TableCell>Status</TableCell>
+                                                <TableCell>Total price</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {pedidos.map((pedido) => (
-                                                <React.Fragment key={pedido.id}>
+                                            {orders.map((order) => (
+                                                <React.Fragment key={order.id}>
                                                     <TableRow>
                                                         <TableCell>
                                                             <IconButton
                                                                 size="small"
-                                                                onClick={() => togglePedido(pedido.id!)}
+                                                                onClick={() => togglePedido(order.id!)}
                                                             >
-                                                                {openPedidoId === pedido.id ? (
+                                                                {openOrderId === order.id ? (
                                                                     <KeyboardArrowUpIcon />
                                                                 ) : (
                                                                     <KeyboardArrowDownIcon />
                                                                 )}
                                                             </IconButton>
                                                         </TableCell>
-                                                        <TableCell>Pedido #{pedido.id}</TableCell>
+                                                        <TableCell>Pedido #{order.id}</TableCell>
                                                         <TableCell>
-                                                            {dayjs(pedido.fechaRealizacion).format('DD/MM/YYYY')}
+                                                            {dayjs(order.orderDate).format('DD/MM/YYYY')}
                                                         </TableCell>
-                                                        <TableCell>{pedido.tipoEstadoPedidoNombre}</TableCell>
+                                                        <TableCell>{order.orderStatusName}</TableCell>
                                                         <TableCell>
-                                                            ${calcularPrecioTotal(pedido.lineas).toFixed(2)}
+                                                            ${calculateTotalPrice(order.orderItems).toFixed(2)}
                                                         </TableCell>
                                                     </TableRow>
                                                     <TableRow>
                                                         <TableCell colSpan={5} sx={{ p: 0 }}>
-                                                            <Collapse in={openPedidoId === pedido.id} timeout="auto" unmountOnExit>
+                                                            <Collapse in={openOrderId === order.id} timeout="auto" unmountOnExit>
                                                                 <Table>
                                                                     <TableHead>
                                                                         <TableRow>
-                                                                            <TableCell>Libro</TableCell>
-                                                                            <TableCell>Precio</TableCell>
-                                                                            <TableCell>Unidades</TableCell>
+                                                                            <TableCell>Book</TableCell>
+                                                                            <TableCell>Price</TableCell>
+                                                                            <TableCell>Quantity</TableCell>
                                                                         </TableRow>
                                                                     </TableHead>
                                                                     <TableBody>
-                                                                        {pedido.lineas?.map((linea: LineaPedido, index: number) => (
-                                                                            <TableRow key={`${pedido.id}-${index}`}>
+                                                                        {order.orderItems?.map((linea: OrderItem, index: number) => (
+                                                                            <TableRow key={`${order.id}-${index}`}>
                                                                                 <TableCell>
                                                                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                                                                         <Avatar
@@ -223,12 +223,12 @@ function MisPedidos() {
                                                                                             sx={{ mr: 2 }}
                                                                                         />
                                                                                         <Typography>
-                                                                                            {linea.nombreLibro}
+                                                                                            {linea.bookTitle}
                                                                                         </Typography>
                                                                                     </Box>
                                                                                 </TableCell>
-                                                                                <TableCell>${linea.precio?.toFixed(2)}</TableCell>
-                                                                                <TableCell>{linea.unidades}</TableCell>
+                                                                                <TableCell>${linea.price?.toFixed(2)}</TableCell>
+                                                                                <TableCell>{linea.quantity}</TableCell>
                                                                             </TableRow>
                                                                         ))}
                                                                     </TableBody>
@@ -250,4 +250,4 @@ function MisPedidos() {
     );
 }
 
-export default MisPedidos;
+export default MyOrders;
