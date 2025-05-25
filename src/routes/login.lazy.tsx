@@ -23,7 +23,6 @@ export const Route = createLazyFileRoute("/login")({
   component: Login,
 });
 
-
 function Login() {
   const api = new DefaultApi();
 
@@ -66,10 +65,18 @@ function Login() {
         locale: "es_ES"
       };
 
-      const authenticatedUser = await api.authenticateUser(authenticateUserRequest);
-      setAuthenticatedUser(authenticatedUser);
+      console.log("AuthenticateUserRequest:", authenticateUserRequest);
 
-      console.log("Authenticated user: " + authenticatedUser);
+      try {
+        const authenticatedUser = await api.authenticateUser(authenticateUserRequest);
+        console.log("authenticatedUser", authenticatedUser);
+      } catch (error) {
+        console.error("Error en authenticateUser:", error);
+    }
+
+      console.log(": "+authenticatedUser);
+    
+      setAuthenticatedUser(authenticatedUser);
 
       if (authenticatedUser?.id) {
         sessionStorage.setItem('authenticatedUser', JSON.stringify(authenticatedUser));
@@ -94,7 +101,7 @@ function Login() {
   };
 
   function handleGoToSignup() {
-    navigate({ to: "/singup" });
+    navigate({ to: "/signup" });
   }
 
   interface MyJwtPayload extends JwtPayload {
