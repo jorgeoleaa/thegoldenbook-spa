@@ -6,9 +6,9 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useNavigate } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
-import { ClienteDTO } from '../services/proxy/generated';
+import { User } from '../services/proxy/generated';
 import { DefaultApi } from '../services/proxy/generated';
-import { UpdateClienteRequest, DeleteClienteRequest } from '../services/proxy/generated/apis/DefaultApi';
+import { UpdateUserRequest, DeleteUserRequest } from '../services/proxy/generated/apis/DefaultApi';
 
 export const Route = createLazyFileRoute('/profile')({
   component: Profile,
@@ -17,47 +17,48 @@ export const Route = createLazyFileRoute('/profile')({
 function Profile() {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
-  const [editedUser, setEditedUser] = useState<ClienteDTO | null>(null);
-  const [originalUser, setOriginalUser] = useState<ClienteDTO | null>(null);
+  const [editedUser, setEditedUser] = useState<User | null>(null);
+  const [originalUser, setOriginalUser] = useState<User | null>(null);
 
   const api = new DefaultApi();
 
-  const usuarioAutenticado: ClienteDTO | null = JSON.parse(sessionStorage.getItem('usuarioAutenticado') || 'null');
+  const authenticatedUser: User | null = JSON.parse(sessionStorage.getItem('authenticatedUser') || 'null');
 
   useEffect(() => {
-    if (!usuarioAutenticado) {
-      console.log("No hay un usuario autenticado.");
+    if (!authenticatedUser) {
+      console.log("There is no authenticated user");
       navigate({ to: "/login" });
     } else {
-      console.log("Usuario autenticado:", usuarioAutenticado);
+      console.log("Authenticated user:", authenticatedUser);
     }
-  }, [usuarioAutenticado, navigate]);
+  }, [authenticatedUser, navigate]);
 
-  if (!usuarioAutenticado) {
+  if (!authenticatedUser) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#f4f6f8">
         <Typography variant="h6" color="text.secondary">
-          No hay un usuario autenticado. Por favor, inicia sesión.
+          There is no authenticated user. Please log in.
         </Typography>
       </Box>
     );
   }
 
   const handleEditClick = () => {
-    setOriginalUser({ ...usuarioAutenticado });
-    setEditedUser({ ...usuarioAutenticado });
+    setOriginalUser({ ...authenticatedUser });
+    setEditedUser({ ...authenticatedUser });
     setIsEditing(true);
   };
 
   const handleSaveClick = () => {
     if (editedUser) {
 
-      const updateClienteRequest: UpdateClienteRequest = {
-        clienteDTO: editedUser
+      const updateClienteRequest: UpdateUserRequest = {
+        user: editedUser,
+        locale: "es_ES"
       }
 
-      api.updateCliente(updateClienteRequest);
-      sessionStorage.setItem('usuarioAutenticado', JSON.stringify(editedUser));
+      api.updateUser(updateClienteRequest);
+      sessionStorage.setItem('authenticatedUser', JSON.stringify(editedUser));
       setIsEditing(false);
     }
   };
@@ -74,11 +75,12 @@ function Profile() {
 
   const handleDeleteClick = async () => {
 
-    const request: DeleteClienteRequest = {
-      id: usuarioAutenticado.id!
+    const request: DeleteUserRequest = {
+      id: authenticatedUser.id!,
+      locale: "es_ES"
     }
-    await api.deleteCliente(request);
-    sessionStorage.removeItem("usuarioAutenticado");
+    await api.deleteUser(request);
+    sessionStorage.removeItem("authenticatedUser");
 
     navigate({to: "/"});
   }
@@ -87,40 +89,40 @@ function Profile() {
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#f4f6f8">
       <Card sx={{ maxWidth: 500, width: '100%', p: 3, borderRadius: 4, boxShadow: 3 }}>
         <CardContent>
-          {/* Perfil de Usuario */}
+          {/* User profile */}
           <Box display="flex" flexDirection="column" alignItems="center">
             <Avatar sx={{ width: 80, height: 80, mb: 2 }} src="/profile-pic.jpg" alt="User Profile" />
             {isEditing ? (
               <>
-                <TextField name="nombre" value={editedUser?.nombre || ''} onChange={handleChange} margin="normal" />
-                <TextField name="apellido1" value={editedUser?.apellido1 || ''} onChange={handleChange} margin="normal" />
-                <TextField name="apellido2" value={editedUser?.apellido2 || ''} onChange={handleChange} margin="normal" />
+                <TextField name="name" value={editedUser?.name || ''} onChange={handleChange} margin="normal" />
+                <TextField name="lastName" value={editedUser?.lastName || ''} onChange={handleChange} margin="normal" />
+                <TextField name="secondLastName" value={editedUser?.secondLastName || ''} onChange={handleChange} margin="normal" />
               </>
             ) : (
               <Typography variant="h5" fontWeight="bold">
-                {usuarioAutenticado.nombre} {usuarioAutenticado.apellido1} {usuarioAutenticado.apellido2}
+                {authenticatedUser.name} {authenticatedUser.lastName} {authenticatedUser.secondLastName}
               </Typography>
             )}
             <Typography variant="body2" color="text.secondary">
-              {usuarioAutenticado.email}
+              {authenticatedUser.email}
             </Typography>
           </Box>
 
-          {/* Información del Usuario */}
+          {/* User information */}
           <Box mt={3}>
             {[
-              { label: 'Username', field: 'nickname' },
-              { label: 'DNI/NIE', field: 'dniNie' },
-              { label: 'Phone', field: 'telefono' },
+              { label: 'Nickname', field: 'nickname' },
+              { label: 'National ID', field: 'nationalId' },
+              { label: 'Phone', field: 'phoneNumber'},
               { label: 'Email', field: 'email' },
-              { label: 'Contraseña', field: 'password', isPassword: true },
+              { label: 'Password', field: 'password', isPassword: true },
             ].map(({ label, field, isPassword }) => (
               <Box key={field} mb={2}>
                 <Typography variant="body1" fontWeight="bold">{label}:</Typography>
                 {isEditing ? (
                   <TextField
                     name={field}
-                    value={editedUser?.[field as keyof ClienteDTO] ?? ''}
+                    value={editedUser?.[field as keyof User] ?? ''}
                     onChange={handleChange}
                     fullWidth
                     type={isPassword ? 'password' : 'text'}
@@ -128,8 +130,8 @@ function Profile() {
                 ) : (
                   <Typography variant="body2" color="text.secondary">
                     {isPassword
-                      ? String(usuarioAutenticado[field as keyof ClienteDTO]).replace(/./g, '*')
-                      : String(usuarioAutenticado[field as keyof ClienteDTO])
+                      ? String(authenticatedUser[field as keyof User]).replace(/./g, '*')
+                      : String(authenticatedUser[field as keyof User])
                     }
                   </Typography>
                 )}
@@ -140,16 +142,16 @@ function Profile() {
               <Typography variant="body1" fontWeight="bold">Address:</Typography>
               {isEditing ? (
                 <TextField
-                  name="direcciones"
-                  value={editedUser?.direcciones?.join(', ') || ''}
+                  name="addresses"
+                  value={editedUser?.addresses?.join(', ') || ''}
                   onChange={handleChange}
                   fullWidth
                 />
               ) : (
-                usuarioAutenticado.direcciones && Array.isArray(usuarioAutenticado.direcciones) && usuarioAutenticado.direcciones.length > 0 ? (
-                  usuarioAutenticado.direcciones.map((direccion, index) => (
+                authenticatedUser.addresses && Array.isArray(authenticatedUser.addresses) && authenticatedUser.addresses.length > 0 ? (
+                  authenticatedUser.addresses.map((address, index) => (
                     <Typography key={index} variant="body2" color="text.secondary">
-                      {"No hay datos de la dirección"}
+                      {"No address data available"}
                     </Typography>
                   ))
                 ) : (
@@ -159,21 +161,21 @@ function Profile() {
             </Box>
           </Box>
 
-          {/* Botones de editar, guardar y cancelar */}
+          {/* Edit, Save, and Cancel buttons */}
           <Box display="flex" justifyContent="center" mt={3}>
             {isEditing ? (
               <>
                 <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSaveClick} sx={{ borderRadius: 2, mr: 2 }}>
-                  Guardar
+                  Save
                 </Button>
                 <Button variant="outlined" startIcon={<CancelIcon />} onClick={handleCancelClick} sx={{ borderRadius: 2 }}>
-                  Cancelar
+                  Cancel
                 </Button>
               </>
             ) : (
               <>
                 <Button variant="contained" startIcon={<EditIcon />} onClick={handleEditClick} sx={{ borderRadius: 2 }}>
-                  Editar Perfil
+                  Edit profile
                 </Button>
                 <Button
                   variant="contained"
@@ -182,7 +184,7 @@ function Profile() {
                   onClick={handleDeleteClick}
                   sx={{ borderRadius: 2 }}
                 >
-                  Eliminar cuenta
+                  Delete account
                 </Button>
               </>
             )}
