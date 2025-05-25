@@ -62,7 +62,7 @@ function Signup() {
         password: password,
         phoneNumber: phoneNumber,
         nationalId: nationalId,
-        oauthToken: undefined
+        oauthToken: undefined,
       };
 
       const request: RegisterUserRequest = { 
