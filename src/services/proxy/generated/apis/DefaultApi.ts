@@ -122,6 +122,11 @@ export interface FindReviewsByBookRequest {
     locale?: string;
 }
 
+export interface FindUserByEmailRequest {
+    locale: string;
+    email?: string;
+}
+
 export interface GetExternalGrammarRequest {
     path: string;
 }
@@ -668,6 +673,45 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
+     * Searches and retrieves a user based on their email address
+     * Find user by email
+     */
+    async findUserByEmailRaw(requestParameters: FindUserByEmailRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<User>> {
+        if (requestParameters['locale'] == null) {
+            throw new runtime.RequiredError(
+                'locale',
+                'Required parameter "locale" was null or undefined when calling findUserByEmail().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['email'] != null) {
+            queryParameters['email'] = requestParameters['email'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/user/{locale}/user`.replace(`{${"locale"}}`, encodeURIComponent(String(requestParameters['locale']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserFromJSON(jsonValue));
+    }
+
+    /**
+     * Searches and retrieves a user based on their email address
+     * Find user by email
+     */
+    async findUserByEmail(requestParameters: FindUserByEmailRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<User> {
+        const response = await this.findUserByEmailRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      */
     async getExternalGrammarRaw(requestParameters: GetExternalGrammarRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters['path'] == null) {
@@ -829,8 +873,8 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
-     * Updates a user by entering all their data
-     * Update a user
+     * Updates an user by entering all their data
+     * User update
      */
     async updateUserRaw(requestParameters: UpdateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<User>> {
         if (requestParameters['locale'] == null) {
@@ -858,8 +902,8 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
-     * Updates a user by entering all their data
-     * Update a user
+     * Updates an user by entering all their data
+     * User update
      */
     async updateUser(requestParameters: UpdateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<User> {
         const response = await this.updateUserRaw(requestParameters, initOverrides);
