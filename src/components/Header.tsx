@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useContext } from 'react';
-import { ClienteContext as UserContext, CartContext } from '../states/contexts';
+import { UserContext as UserContext, CartContext } from '../states/contexts';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { AppBar, Box, Toolbar, IconButton, Typography, Menu, Container, Avatar, Button, Tooltip, MenuItem, Badge } from '@mui/material';
 import { styled } from '@mui/material/styles';

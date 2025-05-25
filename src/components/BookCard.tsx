@@ -3,7 +3,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from "../themes/themes";
 import { Book, UpdateOrderRequest } from "../services/proxy/generated";
 import { DefaultApi } from "../services/proxy/generated";
-import { ClienteContext as UserContext } from "../states/contexts";
+import { UserContext as UserContext } from "../states/contexts";
 import { useNavigate } from '@tanstack/react-router';
 import { useContext, useEffect, useState } from "react";
 import { CartContext } from "../states/contexts";

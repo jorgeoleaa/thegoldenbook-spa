@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, createRootRoute } from '@tanstack/react-router';
 import Header from '../components/Header';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
-import { ClienteContext } from '../states/contexts';
+import { UserContext } from '../states/contexts';
 import { User } from '../services/proxy/generated/models/User';
 import { Order } from '../services/proxy/generated';
 import { CartContext } from '../states/contexts';
@@ -32,13 +32,13 @@ export const Route = createRootRoute({
     return (
       <>
         <CartContext.Provider value={[cart, setCart]}>
-          <ClienteContext.Provider value={[authenticatedUser, setAuthenticatedUser]}>
+          <UserContext.Provider value={[authenticatedUser, setAuthenticatedUser]}>
             <div>
               <Header />
               <Outlet />
               <Footer />
             </div>
-          </ClienteContext.Provider>
+          </UserContext.Provider>
         </CartContext.Provider>
         <TanStackRouterDevtools />
       </>
