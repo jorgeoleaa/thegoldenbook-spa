@@ -12,13 +12,12 @@ import {
   Alert,
 } from "@mui/material";
 import { createLazyFileRoute, useNavigate } from "@tanstack/react-router";
-import { AutenticarClienteRequest, DefaultApi, FindPedidosByCriteriaRequest, RegisterClienteRequest, UpdateClienteRequest } from '../services/proxy/generated/apis/DefaultApi';
-import { ClienteCredentials } from "../services/proxy/generated/models";
-import { CartContext, ClienteContext } from "../states/contexts";
+import { AuthenticateUserRequest, DefaultApi, FindOrdersByCriteriaRequest, FindUserByEmailRequest, RegisterUserRequest, UpdateUserRequest } from '../services/proxy/generated/apis/DefaultApi';
+import { UserCredentials } from "../services/proxy/generated/models";
+import { CartContext, UserContext } from "../states/contexts";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode, JwtPayload } from 'jwt-decode';
-import { ClienteDTO } from "../services/proxy/generated/models";
-import { FindClienteByEmailRequest } from "../services/proxy/generated/apis/DefaultApi";
+import { User } from "../services/proxy/generated/models";
 
 export const Route = createLazyFileRoute("/login")({
   component: Login,
@@ -28,13 +27,13 @@ export const Route = createLazyFileRoute("/login")({
 function Login() {
   const api = new DefaultApi();
 
-  const clienteContext = useContext(ClienteContext);
+  const userContext = useContext(UserContext);
 
-  if (!clienteContext) {
-    throw new Error("ClienteContext debe usarse dentro de un ClienteProvider");
+  if (!userContext) {
+    throw new Error("UserContext must be used within UserProvider");
   }
 
-  const [clienteAutenticado, setClienteAutenticado] = clienteContext;
+  const [authenticatedUser, setAuthenticatedUser] = userContext;
 
   const cartContext = useContext(CartContext);
 
@@ -54,41 +53,42 @@ function Login() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
-    console.log(clienteAutenticado);
+    console.log(authenticatedUser);
 
     try {
-      const clienteCredentials: ClienteCredentials = {
-        mail: email,
+      const userCredentials: UserCredentials = {
+        email: email,
         password: password,
       };
 
-      const autenticarClienteRequest: AutenticarClienteRequest = {
-        clienteCredentials: clienteCredentials,
+      const authenticateUserRequest: AuthenticateUserRequest = {
+        userCredentials: userCredentials,
+        locale: "es_ES"
       };
 
-      const usuarioAutenticado = await api.autenticarCliente(autenticarClienteRequest);
-      setClienteAutenticado(usuarioAutenticado);
+      const authenticatedUser = await api.authenticateUser(authenticateUserRequest);
+      setAuthenticatedUser(authenticatedUser);
 
-      console.log("Cliente autenticado: " + usuarioAutenticado);
+      console.log("Authenticated user: " + authenticatedUser);
 
-      if (usuarioAutenticado?.id) {
-        sessionStorage.setItem('usuarioAutenticado', JSON.stringify(usuarioAutenticado));
+      if (authenticatedUser?.id) {
+        sessionStorage.setItem('authenticatedUser', JSON.stringify(authenticatedUser));
 
-        const criteria: FindPedidosByCriteriaRequest = {
-          clienteId: usuarioAutenticado.id,
-          tipoEstadoPedidoId: 7,
+        const criteria: FindOrdersByCriteriaRequest = {
+          userId: authenticatedUser.id,
+          orderStatusId: 6,
         };
 
-        const carritoClienteAutenticado = await api.findPedidosByCriteria(criteria);
-        setCart(carritoClienteAutenticado[0]);
+        const cartAuthenticatedUser = await api.findOrdersByCriteria(criteria);
+        setCart(cartAuthenticatedUser[0]);
 
-        console.log("Usuario autenticado:", usuarioAutenticado);
-        console.log("Carrito del usuario autenticado: " + carritoClienteAutenticado[0]);
+        console.log("Authenticated user:", authenticatedUser);
+        console.log("Auhtenticated user cart: " + cartAuthenticatedUser[0]);
       }
 
-      navigate({ to: "/libroSearch" });
+      navigate({ to: "/bookSearch" });
     } catch (error) {
-      setError("Error al autenticar el cliente");
+      setError("Error authenticating the user");
       console.error(error);
     }
   };
@@ -116,10 +116,10 @@ function Login() {
           </Typography>
         </Box>
         <Typography variant="h6" component="h2" gutterBottom>
-          Bienvenido
+          Welcome
         </Typography>
         <Typography variant="body1" paragraph>
-          Por favor, introduce los siguientes campos para iniciar sesión.
+          Please enter the following fields to log in.
         </Typography>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -137,7 +137,7 @@ function Login() {
             required
           />
           <TextField
-            label="Contraseña"
+            label="Password"
             type="password"
             fullWidth
             margin="normal"
@@ -154,15 +154,15 @@ function Login() {
                 color="primary"
               />
             }
-            label="Recuérdame"
+            label="Remember me"
           />
           <Box sx={{ textAlign: "right", mb: 2 }}>
             <Link href="#" variant="body2">
-              ¿Olvidaste tu contraseña?
+              Forgot your password?
             </Link>
           </Box>
           <Button type="submit" variant="contained" color="primary" fullWidth>
-            Iniciar sesión
+            Log in
           </Button>
           <GoogleLogin
             onSuccess={async (credentialResponse) => {
@@ -170,137 +170,138 @@ function Login() {
                 const decoded = jwtDecode<MyJwtPayload>(credentialResponse.credential!);
                 console.log("Decoded JWT:", decoded);
 
-                const request: FindClienteByEmailRequest = {
-                  email: decoded.email
+                const request: FindUserByEmailRequest = {
+                  email: decoded.email,
+                  locale : "es_ES"
                 };
 
                 try {
-                  const cliente = await api.findClienteByEmail(request);
-                  console.log("API response:", cliente);
+                  const user = await api.findUserByEmail(request);
+                  console.log("API response:", user);
 
-                  // Si el cliente existe
-                  if (cliente !== null) {
-                    console.log("Cliente existe:", cliente);
+                  if (user !== null) {
+                    console.log("User exists:", user);
 
-                    if (!cliente.jwt) {
-                      console.log("Cliente sin jwt");
-                      cliente.jwt = credentialResponse.credential;
+                    if (!user.oauthToken) {
+                      console.log("User without jwt");
+                      user.oauthToken = credentialResponse.credential;
 
-                      const updateRequest: UpdateClienteRequest = {
-                        clienteDTO: cliente
+                      const updateUserRequest: UpdateUserRequest = {
+                        user: user,
+                        locale: "es_ES"
                       };
 
-                      const clienteAutenticado = await api.updateCliente(updateRequest);
-                      setClienteAutenticado(clienteAutenticado);
-                      sessionStorage.setItem('usuarioAutenticado', JSON.stringify(clienteAutenticado));
+                      const authenticatedUser = await api.updateUser(updateUserRequest);
+                      setAuthenticatedUser(authenticatedUser);
+                      sessionStorage.setItem('authenticatedUser', JSON.stringify(authenticatedUser));
 
-                      const criteria: FindPedidosByCriteriaRequest = {
-                        clienteId: clienteAutenticado.id,
-                        tipoEstadoPedidoId: 7,
+                      const criteria: FindOrdersByCriteriaRequest = {
+                        userId: authenticatedUser.id,
+                        orderStatusId: 6,
                       };
                       
-                      const carritoClienteAutenticado = await api.findPedidosByCriteria(criteria);
-                      setCart(carritoClienteAutenticado[0]);
+                      const authenticatedUserCart = await api.findOrdersByCriteria(criteria);
+                      setCart(authenticatedUserCart[0]);
                     } else {
-                      setClienteAutenticado(cliente);
-                      console.log("Añadiendo en el sessionStorage "+cliente);
-                      sessionStorage.setItem('usuarioAutenticado', JSON.stringify(cliente));
+                      setAuthenticatedUser(user);
+                      console.log("Adding in sessionStorage "+user);
+                      sessionStorage.setItem('authenticatedUser', JSON.stringify(user));
 
-                      const criteria: FindPedidosByCriteriaRequest = {
-                        clienteId: cliente.id,
-                        tipoEstadoPedidoId: 7,
+                      const criteria: FindOrdersByCriteriaRequest = {
+                        userId: user.id,
+                        orderStatusId: 6,
                       };
 
-                      const carritoClienteAutenticado = await api.findPedidosByCriteria(criteria);
-                      setCart(carritoClienteAutenticado[0]);
+                      const authenticatedUserCart = await api.findOrdersByCriteria(criteria);
+                      setCart(authenticatedUserCart[0]);
                     }
 
                     navigate({ to: "/" });
                   } else {
-                    // Si el cliente no existe, registrarlo
-                    console.log("Cliente no existe. Creando nuevo cliente.");
+                    console.log("User does not exist. Creating new user.");
 
-                    const nombrePartes = decoded.name.split(" ");
-                    const apellido1 = nombrePartes.length > 1 ? nombrePartes[1] : "";
-                    const nombre = nombrePartes.length > 0 ? nombrePartes[0] : "";
+                    const nameParts = decoded.name.split(" ");
+                    const lastName = nameParts.length > 1 ? nameParts[1] : "";
+                    const name = nameParts.length > 0 ? nameParts[0] : "";
 
-                    console.log(nombre + " " + apellido1);
+                    console.log(name + " " + lastName);
 
-                    const clienteRegistrar: ClienteDTO = {
+                    const userRegistration: User = {
                       email: decoded.email,
                       password: undefined,
-                      apellido1: apellido1,
-                      apellido2: undefined,
-                      jwt: credentialResponse.credential,
+                      lastName: lastName,
+                      secondLastName: undefined,
+                      oauthToken: credentialResponse.credential,
                       nickname: undefined,
-                      telefono: undefined,
-                      dniNie: undefined,
-                      direcciones: undefined,
-                      nombre: nombre,
+                      phoneNumber: undefined,
+                      nationalId: undefined,
+                      addresses: undefined,
+                      name: name,
                     };
 
-                    const request: RegisterClienteRequest = {
-                      clienteDTO: clienteRegistrar
+                    const request: RegisterUserRequest = {
+                      user: userRegistration,
+                      locale: "es_ES"
                     };
 
-                    const clienteRegistrado = await api.registerCliente(request);
-                    console.log("Cliente registrado:", clienteRegistrado);
+                    const registeredUser = await api.registerUser(request);
+                    console.log("Registered user:", registeredUser);
 
-                    if (clienteRegistrado) {
-                      setClienteAutenticado(clienteRegistrado);
-                      sessionStorage.setItem("usuarioAutenticado", JSON.stringify(clienteRegistrado));
+                    if (registeredUser) {
+                      setAuthenticatedUser(registeredUser);
+                      sessionStorage.setItem("authenticatedUser", JSON.stringify(registeredUser));
                       navigate({ to: "/" });
                     }
                   }
                 } catch (error) {
-                  console.error("Error al buscar el cliente:", error);
+                  console.error("Error searching the user:", error);
 
-                  // Asumimos que el cliente no existe y procedemos a registrarlo
-                  const nombrePartes = decoded.name.split(" ");
-                  const apellido1 = nombrePartes.length > 1 ? nombrePartes[1] : "";
-                  const nombre = nombrePartes.length > 0 ? nombrePartes[0] : "";
+                  const nameParts = decoded.name.split(" ");
+                  const lastName = nameParts.length > 1 ? nameParts[1] : "";
+                  const name = nameParts.length > 0 ? nameParts[0] : "";
 
-                  console.log(nombre + " " + apellido1);
+                  console.log(name + " " + lastName);
 
-                  const clienteRegistrar: ClienteDTO = {
+                  const userRegistration: User = {
                     email: decoded.email,
                     password: undefined,
-                    apellido1: apellido1,
-                    apellido2: undefined,
-                    jwt: credentialResponse.credential,
+                    lastName: lastName,
+                    secondLastName: undefined,
+                    oauthToken: credentialResponse.credential,
                     nickname: undefined,
-                    telefono: undefined,
-                    dniNie: undefined,
-                    direcciones: undefined,
-                    nombre: nombre,
+                    phoneNumber: undefined,
+                    nationalId: undefined,
+                    addresses: undefined,
+                    name: name,
                   };
 
-                  const request: RegisterClienteRequest = {
-                    clienteDTO: clienteRegistrar
+                  const request: RegisterUserRequest = {
+                    user: userRegistration,
+                    locale: "es_ES"
                   };
 
                   try {
-                    const clienteRegistrado = await api.registerCliente(request);
-                    console.log("Cliente registrado:", clienteRegistrado);
+                    const registeredUser = await api.registerUser(request);
+                    console.log("Registered user:", registeredUser);
 
-                    if (clienteRegistrado) {
-                      setClienteAutenticado(clienteRegistrado);
-                      sessionStorage.setItem("usuarioAutenticado", JSON.stringify(clienteRegistrado));
+                    if (registeredUser) {
+                      setAuthenticatedUser(registeredUser);
+                      sessionStorage.setItem("authenticatedUser", JSON.stringify(registeredUser));
                       navigate({ to: "/" });
                     }
                   } catch (registroError) {
-                    console.error("Error al registrar el cliente:", registroError);
-                    setError("Error al registrar el cliente con Google");
+                    console.error("Error registering the user:", registroError);
+                    setError("Error registering the user with google");
                   }
                 }
               } catch (error) {
-                console.error("Error en la autenticación con Google:", error);
-                setError("Error en la autenticación con Google");
+                console.error("Error authenticating the user with google:", error);
+                setError("Error in authentication with Google");
               }
             }}
             onError={() => {
-              console.log("Error en la autenticación");
-              setError("Error en la autenticación con Google");
+              console.log("Authentication error");
+              setError("Error in authentication with Google");
             }}
           />
         </form>
@@ -311,7 +312,7 @@ function Login() {
             sx={{ cursor: "pointer", color: "primary.main" }}
             onClick={handleGoToSignup}
           >
-            ¿No tienes una cuenta? Regístrate
+            Don't have an account? Sign up
           </Typography>
         </Box>
       </Paper>
