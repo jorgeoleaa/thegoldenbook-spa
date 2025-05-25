@@ -16,7 +16,7 @@ import { Route as rootRoute } from './routes/__root'
 
 // Create Virtual Routes
 
-const SingupLazyImport = createFileRoute('/singup')()
+const SignupLazyImport = createFileRoute('/signup')()
 const PublicLazyImport = createFileRoute('/public')()
 const ProfileLazyImport = createFileRoute('/profile')()
 const OrdersLazyImport = createFileRoute('/orders')()
@@ -30,11 +30,11 @@ const IndexLazyImport = createFileRoute('/')()
 
 // Create/Update Routes
 
-const SingupLazyRoute = SingupLazyImport.update({
-  id: '/singup',
-  path: '/singup',
+const SignupLazyRoute = SignupLazyImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/singup.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./routes/signup.lazy').then((d) => d.Route))
 
 const PublicLazyRoute = PublicLazyImport.update({
   id: '/public',
@@ -170,11 +170,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicLazyImport
       parentRoute: typeof rootRoute
     }
-    '/singup': {
-      id: '/singup'
-      path: '/singup'
-      fullPath: '/singup'
-      preLoaderRoute: typeof SingupLazyImport
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupLazyImport
       parentRoute: typeof rootRoute
     }
   }
@@ -193,7 +193,7 @@ export interface FileRoutesByFullPath {
   '/orders': typeof OrdersLazyRoute
   '/profile': typeof ProfileLazyRoute
   '/public': typeof PublicLazyRoute
-  '/singup': typeof SingupLazyRoute
+  '/signup': typeof SignupLazyRoute
 }
 
 export interface FileRoutesByTo {
@@ -207,7 +207,7 @@ export interface FileRoutesByTo {
   '/orders': typeof OrdersLazyRoute
   '/profile': typeof ProfileLazyRoute
   '/public': typeof PublicLazyRoute
-  '/singup': typeof SingupLazyRoute
+  '/signup': typeof SignupLazyRoute
 }
 
 export interface FileRoutesById {
@@ -222,7 +222,7 @@ export interface FileRoutesById {
   '/orders': typeof OrdersLazyRoute
   '/profile': typeof ProfileLazyRoute
   '/public': typeof PublicLazyRoute
-  '/singup': typeof SingupLazyRoute
+  '/signup': typeof SignupLazyRoute
 }
 
 export interface FileRouteTypes {
@@ -238,7 +238,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/profile'
     | '/public'
-    | '/singup'
+    | '/signup'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -251,7 +251,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/profile'
     | '/public'
-    | '/singup'
+    | '/signup'
   id:
     | '__root__'
     | '/'
@@ -264,7 +264,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/profile'
     | '/public'
-    | '/singup'
+    | '/signup'
   fileRoutesById: FileRoutesById
 }
 
@@ -279,7 +279,7 @@ export interface RootRouteChildren {
   OrdersLazyRoute: typeof OrdersLazyRoute
   ProfileLazyRoute: typeof ProfileLazyRoute
   PublicLazyRoute: typeof PublicLazyRoute
-  SingupLazyRoute: typeof SingupLazyRoute
+  SignupLazyRoute: typeof SignupLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -293,7 +293,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrdersLazyRoute: OrdersLazyRoute,
   ProfileLazyRoute: ProfileLazyRoute,
   PublicLazyRoute: PublicLazyRoute,
-  SingupLazyRoute: SingupLazyRoute,
+  SignupLazyRoute: SignupLazyRoute,
 }
 
 export const routeTree = rootRoute
