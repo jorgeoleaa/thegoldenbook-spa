@@ -19,7 +19,7 @@ import { Route as rootRoute } from './routes/__root'
 const SingupLazyImport = createFileRoute('/singup')()
 const PublicLazyImport = createFileRoute('/public')()
 const ProfileLazyImport = createFileRoute('/profile')()
-const PedidosLazyImport = createFileRoute('/pedidos')()
+const OrdersLazyImport = createFileRoute('/orders')()
 const LoginLazyImport = createFileRoute('/login')()
 const BookSearchLazyImport = createFileRoute('/bookSearch')()
 const BookDetailLazyImport = createFileRoute('/bookDetail')()
@@ -48,11 +48,11 @@ const ProfileLazyRoute = ProfileLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/profile.lazy').then((d) => d.Route))
 
-const PedidosLazyRoute = PedidosLazyImport.update({
-  id: '/pedidos',
-  path: '/pedidos',
+const OrdersLazyRoute = OrdersLazyImport.update({
+  id: '/orders',
+  path: '/orders',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/pedidos.lazy').then((d) => d.Route))
+} as any).lazy(() => import('./routes/orders.lazy').then((d) => d.Route))
 
 const LoginLazyRoute = LoginLazyImport.update({
   id: '/login',
@@ -149,11 +149,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginLazyImport
       parentRoute: typeof rootRoute
     }
-    '/pedidos': {
-      id: '/pedidos'
-      path: '/pedidos'
-      fullPath: '/pedidos'
-      preLoaderRoute: typeof PedidosLazyImport
+    '/orders': {
+      id: '/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof OrdersLazyImport
       parentRoute: typeof rootRoute
     }
     '/profile': {
@@ -190,7 +190,7 @@ export interface FileRoutesByFullPath {
   '/bookDetail': typeof BookDetailLazyRoute
   '/bookSearch': typeof BookSearchLazyRoute
   '/login': typeof LoginLazyRoute
-  '/pedidos': typeof PedidosLazyRoute
+  '/orders': typeof OrdersLazyRoute
   '/profile': typeof ProfileLazyRoute
   '/public': typeof PublicLazyRoute
   '/singup': typeof SingupLazyRoute
@@ -204,7 +204,7 @@ export interface FileRoutesByTo {
   '/bookDetail': typeof BookDetailLazyRoute
   '/bookSearch': typeof BookSearchLazyRoute
   '/login': typeof LoginLazyRoute
-  '/pedidos': typeof PedidosLazyRoute
+  '/orders': typeof OrdersLazyRoute
   '/profile': typeof ProfileLazyRoute
   '/public': typeof PublicLazyRoute
   '/singup': typeof SingupLazyRoute
@@ -219,7 +219,7 @@ export interface FileRoutesById {
   '/bookDetail': typeof BookDetailLazyRoute
   '/bookSearch': typeof BookSearchLazyRoute
   '/login': typeof LoginLazyRoute
-  '/pedidos': typeof PedidosLazyRoute
+  '/orders': typeof OrdersLazyRoute
   '/profile': typeof ProfileLazyRoute
   '/public': typeof PublicLazyRoute
   '/singup': typeof SingupLazyRoute
@@ -235,7 +235,7 @@ export interface FileRouteTypes {
     | '/bookDetail'
     | '/bookSearch'
     | '/login'
-    | '/pedidos'
+    | '/orders'
     | '/profile'
     | '/public'
     | '/singup'
@@ -248,7 +248,7 @@ export interface FileRouteTypes {
     | '/bookDetail'
     | '/bookSearch'
     | '/login'
-    | '/pedidos'
+    | '/orders'
     | '/profile'
     | '/public'
     | '/singup'
@@ -261,7 +261,7 @@ export interface FileRouteTypes {
     | '/bookDetail'
     | '/bookSearch'
     | '/login'
-    | '/pedidos'
+    | '/orders'
     | '/profile'
     | '/public'
     | '/singup'
@@ -276,7 +276,7 @@ export interface RootRouteChildren {
   BookDetailLazyRoute: typeof BookDetailLazyRoute
   BookSearchLazyRoute: typeof BookSearchLazyRoute
   LoginLazyRoute: typeof LoginLazyRoute
-  PedidosLazyRoute: typeof PedidosLazyRoute
+  OrdersLazyRoute: typeof OrdersLazyRoute
   ProfileLazyRoute: typeof ProfileLazyRoute
   PublicLazyRoute: typeof PublicLazyRoute
   SingupLazyRoute: typeof SingupLazyRoute
@@ -290,7 +290,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookDetailLazyRoute: BookDetailLazyRoute,
   BookSearchLazyRoute: BookSearchLazyRoute,
   LoginLazyRoute: LoginLazyRoute,
-  PedidosLazyRoute: PedidosLazyRoute,
+  OrdersLazyRoute: OrdersLazyRoute,
   ProfileLazyRoute: ProfileLazyRoute,
   PublicLazyRoute: PublicLazyRoute,
   SingupLazyRoute: SingupLazyRoute,
