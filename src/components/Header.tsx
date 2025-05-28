@@ -91,7 +91,7 @@ function Header() {
             () => navigate({ to: '/cart' })
             : () => navigate({ to: '/login' })
           } sx={{ color: 'white', mr: 2 }}>
-            <CartBadge badgeContent={cart?.lineas?.length} color="primary">
+            <CartBadge badgeContent={cart?.orderItems?.length} color="primary">
               <ShoppingCartIcon />
             </CartBadge>
           </IconButton>

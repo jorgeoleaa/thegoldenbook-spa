@@ -68,21 +68,21 @@ function Login() {
       console.log("AuthenticateUserRequest:", authenticateUserRequest);
 
       try {
-        const authenticatedUser = await api.authenticateUser(authenticateUserRequest);
-        console.log("authenticatedUser", authenticatedUser);
+        const authenticatedUserCorrectly = await api.authenticateUser(authenticateUserRequest);
+        console.log("authenticatedUserCorrectly", authenticatedUserCorrectly);
+        setAuthenticatedUser(authenticatedUserCorrectly);
       } catch (error) {
         console.error("Error en authenticateUser:", error);
     }
 
-      console.log(": "+authenticatedUser);
-    
-      setAuthenticatedUser(authenticatedUser);
+      if (authenticatedUser) {
+        
+        console.log("AuthenticatedUser: "+authenticatedUser)
 
-      if (authenticatedUser?.id) {
         sessionStorage.setItem('authenticatedUser', JSON.stringify(authenticatedUser));
 
         const criteria: FindOrdersByCriteriaRequest = {
-          userId: authenticatedUser.id,
+          userId: authenticatedUser!.id,
           orderStatusId: 6,
         };
 
