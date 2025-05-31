@@ -51,7 +51,7 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
         bookTitle: book.title,
       };
 
-      cart.lineas?.push(orderItem);
+      cart.orderItems?.push(orderItem);
 
       const updateOrderRequest: UpdateOrderRequest = {
         order: cart,

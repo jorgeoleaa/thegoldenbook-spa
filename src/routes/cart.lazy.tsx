@@ -62,7 +62,7 @@ function Cart() {
     };
   }, [cart?.orderItems]);
   
-  if (!cart || !cart.lineas || cart.lineas.length === 0) {
+  if (!cart || !cart.orderItems || cart.orderItems.length === 0) {
     return (
       <Box sx={{ padding: 4, textAlign: 'center' }}>
         <Typography variant="h5" align="center" gutterBottom>
