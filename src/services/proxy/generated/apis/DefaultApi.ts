@@ -111,6 +111,7 @@ export interface FindOrdersByCriteriaRequest {
     maxPrice?: number;
     userId?: number;
     orderStatusId?: number;
+    locale?: string;
 }
 
 export interface FindReadingAgeGroupsByLocaleRequest {
@@ -581,6 +582,10 @@ export class DefaultApi extends runtime.BaseAPI {
 
         if (requestParameters['orderStatusId'] != null) {
             queryParameters['orderStatusId'] = requestParameters['orderStatusId'];
+        }
+
+        if (requestParameters['locale'] != null) {
+            queryParameters['locale'] = requestParameters['locale'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
