@@ -63,6 +63,7 @@ function Login() {
         const criteria: FindOrdersByCriteriaRequest = {
           userId: authenticatedUser.id,
           orderStatusId: 6,
+          locale: "es_ES"
         };
         const cartForUser = await api.findOrdersByCriteria(criteria);
         setCart(cartForUser[0]);
