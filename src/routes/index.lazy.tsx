@@ -207,7 +207,9 @@ const BookCard = ({ book }: { book: Book }) => {
     }, [book.id]);
 
     async function addToCart() {
-        if (cart) {
+
+        if(authenticatedUser){
+            if (cart) {
             const orderItem: OrderItem = {
                 price: book.price,
                 bookId: book.id,
@@ -217,12 +219,15 @@ const BookCard = ({ book }: { book: Book }) => {
 
             cart.orderItems?.push(orderItem);
 
+            console.log("OrderItems: "+cart.orderItems);
+
             const updatePedidoRequest: UpdateOrderRequest = {
                 order: cart,
             };
 
             const updatedOrder = await api.updateOrder(updatePedidoRequest);
             setCart(updatedOrder);
+            navigate({ to: "/cart" });
         } else {
             const orderItem: OrderItem = {
                 price: book.price,
@@ -247,9 +252,11 @@ const BookCard = ({ book }: { book: Book }) => {
 
             const createdCart = await api.createOrder(createOrderRequest);
             setCart(createdCart);
+            navigate({ to: "/cart" });
         }
-
-        navigate({ to: "/cart" });
+        }else{
+            navigate({to: "/login"});
+        }
     }
 
     const handleClickTitle = () => {
