@@ -897,7 +897,7 @@ export class DefaultApi extends runtime.BaseAPI {
 
         const response = await this.request({
             path: `/api/user/{locale}/update`.replace(`{${"locale"}}`, encodeURIComponent(String(requestParameters['locale']))),
-            method: 'POST',
+            method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
             body: UserToJSON(requestParameters['user']),
