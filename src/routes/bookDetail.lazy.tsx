@@ -45,7 +45,7 @@ function BookDetail() {
         if (book) {
             const fetchReviews = async () => {
                 try {
-                    const request: FindReviewsByBookRequest = { bookId: book.id };
+                    const request: FindReviewsByBookRequest = { bookId: book.id, locale: 'es_ES' };
                     const response = await api.findReviewsByBook(request);
                     setReviews(response);
                     setLoading(false);
@@ -83,7 +83,8 @@ function BookDetail() {
             body: ratingData.body,
             rating: ratingData.rating,
             bookId: book.id,
-            userId: user?.id
+            userId: user?.id,
+            languageId: 2
         };
 
         const createReviewRequest: CreateReviewRequest = {
@@ -93,7 +94,7 @@ function BookDetail() {
 
         await api.createReview(createReviewRequest);
 
-        const bookRequest: FindReviewsByBookRequest = { bookId: book.id };
+        const bookRequest: FindReviewsByBookRequest = { bookId: book.id, locale: 'es_ES' };
         const updatedReviews = await api.findReviewsByBook(bookRequest);
         setReviews(updatedReviews);
 
@@ -109,7 +110,10 @@ function BookDetail() {
             };
 
             await api.deleteReview(deleteReviewRequest);
-            const bookRequest: FindReviewsByBookRequest = { bookId: book.id };
+            const bookRequest: FindReviewsByBookRequest = { 
+                bookId: book.id,
+                locale: 'es_ES'
+             };
             const updatedReviews = await api.findReviewsByBook(bookRequest);
             setReviews(updatedReviews);
         } catch (error) {
