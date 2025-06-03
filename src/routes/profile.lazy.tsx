@@ -58,6 +58,9 @@ function Profile() {
       }
 
       api.updateUser(updateClienteRequest);
+
+      console.log("EditedUser: "+editedUser);
+
       sessionStorage.setItem('authenticatedUser', JSON.stringify(editedUser));
       setIsEditing(false);
     }
